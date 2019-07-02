@@ -1,27 +1,37 @@
 import socket
 import time
 import os
+import sys
 import socket_library as sl
 
+reconnect_time = 3
+BUFFER_SIZE = 4096
 
-def main():
-    print("Running client...")
-    s = sl.client()
-    while s.establish_client_connection():
-        reconnect_time = 3
-        print("Error: Failed to establish client")
+def setup():
+    print("Starting client...")
+    i = 0
+    while client.set_client_connection():
+        i += 1
+        if i >= 5:
+            print("Error: Timed out too many times")
+            sys.exit()
+
         print("Retrying in " + str(reconnect_time) + " seconds...")
         time.sleep(reconnect_time)
+        print("Starting client...")
 
-    # s.send_string("client is ready")
-    # s.send_image(os.path.join(os.getcwd(), "example\\image.jpg"))
+    print("Client started")
+    client.send_string(client.name + "///is online")
+    client.confirm_connection()
 
-    # s.send_zip(os.path.join(os.getcwd(), "example\\windows.tgz"), False, "windows")
-    sl.zip_folder("Windows", "./Windows")
-    s.send_zip(os.path.join(os.getcwd(), "Windows.zip"))
-    s.close()
-    return 0
+def loop():
+    while True:
+        
+        time.sleep(1)
 
 
 if __name__ == "__main__":
-    main()
+    client = sl.Client()
+    setup()
+    loop()
+    client.close()
