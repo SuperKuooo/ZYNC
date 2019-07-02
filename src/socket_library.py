@@ -2,6 +2,8 @@ import socket
 import os
 import shutil
 
+DEFAULT_IP = socket.gethostbyname(socket.gethostname())
+DEFAULT_PORT = 8000
 BUFFER_SIZE = 4096
 
 def zip_folder(output, target):
@@ -68,7 +70,7 @@ class Server:
         self.list_of_connection = []
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def set_server_connection(self, TCP_IP="192.168.1.97", TCP_PORT=8000):
+    def set_server_connection(self, TCP_IP=DEFAULT_IP, TCP_PORT=DEFAULT_PORT):
         try:
             self.s.bind((TCP_IP, TCP_PORT))
         except socket.error:

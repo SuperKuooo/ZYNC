@@ -1,4 +1,7 @@
 import socket_library as sl
+from watchdog.observers import Observer
+from watchdog.events import LoggingEventHandler
+import logging
 import time
 import datetime
 
@@ -15,19 +18,34 @@ def setup():
         time.sleep(reconnect_time)
         ip, port = server.set_server_connection()
 
+    logging.basicConfig(filename="test.log",
+                        level=logging.INFO,
+                        format='%(asctime)s - %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
+    path = "C:/Users/user/Desktop/junk"
+    event_handler = LoggingEventHandler()
+    observer = Observer()
+    observer.schedule(event_handler, path, recursive=True)
+    observer.start()
+
     print("Server Established at IP: " + str(ip) + " Port: " + str(port))
     print("Waiting for connections")
 
-    while True:
-        server.listen(MAX_CONNECTION)
-        conn, addr = server.accept()
-        print("Connection Address:" + str(addr) + " " + str(datetime.datetime.now()))
-        server.echo_connection(conn, conn.recv(BUFFER_SIZE))
-        conn.close()
-
-
+def loop():
+    try:
+        while True:
+            server.listen(MAX_CONNECTION)
+            conn, addr = server.accept()
+            print("Connection Address:" + str(addr) + " " + str(datetime.datetime.now()))
+            server.echo_connection(conn, conn.recv(BUFFER_SIZE))
+            conn.close()
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+        server.close()    
 
 if __name__ == "__main__":
     server = sl.Server()
     setup()
+    loop()
 
