@@ -14,7 +14,7 @@ def main():
     s.close()
     return 0
 
-def establish_tcp_connection(TCP_IP= "192.168.1.118", TCP_PORT = 6815):
+def establish_tcp_connection(TCP_IP= "192.168.1.97", TCP_PORT = 8000):
     #BUFFERSIZE = 1024
     try:
         s.connect((TCP_IP, TCP_PORT))
@@ -27,6 +27,8 @@ def establish_tcp_connection(TCP_IP= "192.168.1.118", TCP_PORT = 6815):
 
 def send_file():
     MESSAGE = "Hello, World!"
+    b = bytes(MESSAGE, "utf-8")
+    s.send(b)
     try:
         s.send(MESSAGE)
     except:
