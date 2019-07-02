@@ -1,5 +1,11 @@
 import socket
 import os
+import shutil
+
+
+def zip_folder(output, target):
+    print("Zipping Target...")
+    shutil.make_archive(target, "zip", output)
 
 
 class client():
@@ -25,17 +31,16 @@ class client():
         print("Message Sent!")
         return 0
 
-    def send_image(self, location=os.getcwd()):
+    def send_image(self, location):
         with open(location, 'rb') as fp:
             b = bytearray(fp.read())
             print(b[0])
             self.s.sendall(b)
         return 0
 
-    def send_zip(self, location, zipped):
-        if(not zipped):
-            print("Zipping")
-        else:
+    def send_zip(self, location):
+        with open(location, 'rb') as fp:
+            self.s.sendall(fp.read())
             print("Sending")
 
     def close(self):

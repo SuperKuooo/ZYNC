@@ -1,3 +1,5 @@
 .idea/
 example/
 __pycache__/
+*.zip
+Windows/
