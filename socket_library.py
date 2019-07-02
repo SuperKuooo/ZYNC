@@ -1,5 +1,6 @@
 import socket
 
+
 class client():
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,8 +36,8 @@ class server():
         try:
             self.s.bind((TCP_IP, TCP_PORT))
         except socket.error:
-            return 1
-        return 0
+            return 1, 1
+        return TCP_IP, TCP_PORT
 
     def close(self):
         self.s.close()

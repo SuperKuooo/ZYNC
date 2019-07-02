@@ -1,30 +1,40 @@
 import socket_library as sl
 import time
+import datetime
 
 s = sl.server()
 
-def main():
-    print("Initializing...")
 
-    while s.establish_server_connection():
+def main():
+    BUFFERSIZE = 4096
+
+    print("Running Server...")
+    ip, port = s.establish_server_connection()
+
+    while ip == 1 and port == 1:
         print("Error: Failed to establish server")
         reconnect_time = 3
         print("Retrying in " + str(reconnect_time) + " seconds...")
         time.sleep(reconnect_time)
+        ip, port = s.establish_server_connection()
 
-    BUFFERSIZE = 1024
-    s.listen(1)
+    print("Server Established at IP: " + str(ip) + " Port: " + str(port))
+    print("Listening to calls")
 
-    conn, addr = s.accept()
-
-    print("Connection Address:" + str(addr))
     while 1:
-        data = conn.recv(BUFFERSIZE)
-        if not data:
-            break
-        print("Received Data: ", data)
+        s.listen(5)
+        conn, addr = s.accept()
+        print("Connection Address:" + str(addr) + " " + str(datetime.datetime.now()))
 
-    conn.close()
+        fp = open("./example/ship.zip", 'wb')
+        while True:
+            data = conn.recv(BUFFERSIZE)
+            if not data:
+                break
+            fp.write(data)
+        fp.close()
+        conn.close()
+
 
 if __name__ == "__main__":
     main()

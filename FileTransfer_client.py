@@ -2,6 +2,7 @@ import socket
 import time
 import socket_library as sl
 
+
 def main():
     print("Initializing...")
     s = sl.client()
@@ -14,6 +15,7 @@ def main():
     s.send_string("client is ready")
     s.close()
     return 0
+
 
 if __name__ == "__main__":
     main()
