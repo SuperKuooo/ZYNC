@@ -8,10 +8,9 @@ def zip_folder(output, target):
     shutil.make_archive(target, "zip", output)
 
 
-
-class client():
-    def __init__(self):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+class Client:
+    def __init__(self, conn =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)):
+        self.s = conn
 
     def establish_client_connection(self, TCP_IP="192.168.1.97", TCP_PORT=8000):
         try:
@@ -48,22 +47,37 @@ class client():
         self.s.close()
 
 
-class server():
+class Server:
     def __init__(self):
+        self.list_of_connection = []
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def establish_server_connection(self, TCP_IP="192.168.1.97", TCP_PORT=8000):
+    def set_server_connection(self, TCP_IP="192.168.1.97", TCP_PORT=8000):
         try:
             self.s.bind((TCP_IP, TCP_PORT))
         except socket.error:
+            print("Error: Failed to start server")
             return 1, 1
         return TCP_IP, TCP_PORT
 
+    def echo_connection(self, conn, message):
+        #print(message)
+        message = message.decode("utf-8")
+        try:
+            temp = Client(conn)
+            temp.send_string(message)
+            self.list_of_connection.append(message.split('///')[0])
+            temp.close()
+        except socket.error:
+            print("Error: Failed to echo client connection")
+
+        return 0
+
     def close(self):
-        self.s.close()
+        return self.s.close()
 
     def listen(self, i):
-        self.s.listen(i)
+        return self.s.listen(i)
 
     def accept(self):
         return self.s.accept()
