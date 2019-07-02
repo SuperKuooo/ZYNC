@@ -7,7 +7,6 @@ def main():
     print("Initializing...")
 
     while s.establish_server_connection():
-        print("Error: Failed to establish server")
         reconnect_time = 3
         print("Retrying in " + str(reconnect_time) + " seconds...")
         time.sleep(reconnect_time)
