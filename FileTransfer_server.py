@@ -10,7 +10,6 @@ def main():
 
     print("Running Server...")
     ip, port = s.establish_server_connection()
-
     while ip == 1 and port == 1:
         print("Error: Failed to establish server")
         reconnect_time = 3
