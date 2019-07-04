@@ -1,6 +1,9 @@
 .idea/
-example/
 __pycache__/
-*.zip
-Windows/
+save/*
+archive/*
+
 .DS_STORE
+
+!save/readme.txt
+!archive/readme.txt

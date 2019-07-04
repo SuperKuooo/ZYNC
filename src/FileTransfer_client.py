@@ -32,9 +32,7 @@ def alive_message_loop():
         pass
 
 
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     client = sl.Client()
     setup('192.168.1.118', 8000)
     t1 = threading.Thread(target=communication_loop(), name='communication_loop')

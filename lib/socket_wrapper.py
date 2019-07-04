@@ -34,12 +34,12 @@ class Client:
         try:
             self.s.connect((TCP_IP, TCP_PORT))
         except socket.error:
+            print("Error: Failed to connect to server")
             if attempt_to_reconnect:
                 print("Retrying in " + str(attempt_to_reconnect) + " seconds...")
                 time.sleep(attempt_to_reconnect)
                 print("Starting client...")
                 self.set_client_connection(TCP_IP, TCP_PORT, attempt_to_reconnect)
-            print("Error: Failed to connect to server")
             return 1
         return 0
 
