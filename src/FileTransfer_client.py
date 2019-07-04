@@ -1,7 +1,7 @@
 import time
 import threading
 import sys
-import socket_library as sl
+import socket_wrapper as sl
 
 reconnect_time = 3
 BUFFER_SIZE = 4096
