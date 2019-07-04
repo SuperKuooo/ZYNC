@@ -26,7 +26,6 @@ def setup():
         conn.close()
 
 
-
 if __name__ == "__main__":
     server = sl.Server()
     setup()
