@@ -1,6 +1,6 @@
 import time
 import threading
-import sys
+import os
 import socket_wrapper as sl
 
 reconnect_time = 3
@@ -17,15 +17,19 @@ def setup(ip, port):
 
 def communication_loop():
     while True:
-        type = client.recv(BUFFER_SIZE)
-        print(type)
-        if type == 'zip':
-            fp = open('./save/shipment.zip', 'wb')
+        op = client.recv(BUFFER_SIZE)
+        print(op)
+        if op == bytes('0', 'utf-8'):
+            client.send_string(op, True)
+        elif op == bytes('zip', 'utf-8'):
+            fp = open('../save/shipment.zip', 'wb')
+            client.save_file(BUFFER_SIZE, fp)
+        elif op == 'image':
+            fp = open('../save/shipment.img', 'wb')
             # client.save_file(BUFFER_SIZE, fp)
-        elif type == 'image':
-            fp = open('./save/shipment.img', 'wb')
-            # client.save_file(BUFFER_SIZE, fp)
-
+        elif op == 'break':
+            raise KeyboardInterrupt
+        time.sleep(0.5)
 
 def alive_message_loop():
     while True:
@@ -40,8 +44,8 @@ if __name__ == '__main__':
 
     try:
         t1.start()
-        t2.start()
+        # t2.start()
     except KeyboardInterrupt:
         t1.join()
-        t2.join()
+        # t2.join()
         client.close()

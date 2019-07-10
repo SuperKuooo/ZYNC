@@ -30,8 +30,9 @@ class Client:
         self.s = conn
         self.name = socket.gethostname()
 
-    def set_client_connection(self, TCP_IP='localhost', TCP_PORT=8000, attempt_to_reconnect=0):
+    def set_client_connection(self, TCP_IP, TCP_PORT, attempt_to_reconnect=0):
         try:
+            self.s.settimeout(2)
             self.s.connect((TCP_IP, TCP_PORT))
         except socket.error:
             print("Error: Failed to connect to server")
@@ -61,18 +62,20 @@ class Client:
             self.s.settimeout(3600)
             return self.s.recv(buffer_size)
         except socket.error:
-            print('Warning: Timeout after one hour')
-            print('Initiating')
+            print('Warning: Timeout')
             return None
+        except KeyboardInterrupt:
+            return 'break'
 
-    def send_string(self, message):
-        b = bytes(message, "utf-8")
+    def send_string(self, message, raw=False):
+        b = message
+        if not raw:
+            b = bytes(message, 'utf-8')
         try:
             self.s.send(b)
         except socket.error:
-            print("Error: Failed to send message")
+            print('Error: Failed to send message')
             return 1
-        print("Message sent")
         return 0
 
     def send_image(self, location):
@@ -93,11 +96,13 @@ class Client:
             print("Sending")
 
     def save_file(self, buffer, filepointer):
+        print('zip received')
         while True:
             data = self.s.recv(buffer)
             if not data:
                 break
             filepointer.write(data)
+        print('zip saved')
 
     def close(self):
         self.send_string('terminating')
