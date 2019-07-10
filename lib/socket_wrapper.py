@@ -158,6 +158,9 @@ class Server:
     def get_num_of_connection(self):
         return len(self.list_of_connection)
 
+    def get_num_of_observer(self):
+        return len(self.list_of_observer)
+
     def get_list_of_connection(self, index=None):
         if index == None:
             return self.list_of_connection
@@ -212,6 +215,8 @@ class Server:
     def close(self):
         for conn in self.list_of_connection:
             conn.close()
+        for obs in self.list_of_observer:
+            obs.close()
         return self.s.close()
 
     def listen(self, size):

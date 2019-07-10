@@ -1,25 +1,14 @@
-import sys, os
-import threading
-import datetime
-import time
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'File Transfer.ui'
+#
+# Created by: PyQt5 UI code generator 5.11.3
+#
+# WARNING! All changes made in this file will be lost!
+
 from PyQt5 import QtCore, QtGui, QtWidgets
-sys.path.append(os.getcwd())
-import lib.socket_wrapper as sw
-
-LIB_PATH = 'C:/Users/user/Documents/Unity_Build_Library'
-TARGET_PATH = 'Univrse-Core/Windows'
-MAX_CONNECTION = 5
-BUFFER_SIZE = 4096
-
 
 class Ui_frmServerTerminal(object):
-    def UI_master(self, frmServerTerminal):
-        self.setupUi(frmServerTerminal)
-        # self.retranslateUi(frmServerTerminal)
-        self.btn_clicked()
-        self.menu_actions()
-        QtCore.QMetaObject.connectSlotsByName(frmServerTerminal)
-
     def setupUi(self, frmServerTerminal):
         frmServerTerminal.setObjectName("frmServerTerminal")
         frmServerTerminal.setEnabled(True)
@@ -57,20 +46,19 @@ class Ui_frmServerTerminal(object):
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
-        self.widget = QtWidgets.QWidget(self.centralwidget)
-        self.widget.setGeometry(QtCore.QRect(10, 40, 541, 231))
-        self.widget.setObjectName("widget")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.widget)
+        self.layoutWidget = QtWidgets.QWidget(self.centralwidget)
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 40, 541, 231))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
-        self.lstListOfConn = QtWidgets.QListWidget(self.widget)
-        self.lstListOfConn.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectRows)
+        self.lstListOfConn = QtWidgets.QListWidget(self.layoutWidget)
+        self.lstListOfConn.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.lstListOfConn.setObjectName("lstListOfConn")
         self.verticalLayout.addWidget(self.lstListOfConn)
-        self.btnKick = QtWidgets.QPushButton(self.widget)
+        self.btnKick = QtWidgets.QPushButton(self.layoutWidget)
         font = QtGui.QFont()
         font.setPointSize(12)
         self.btnKick.setFont(font)
@@ -79,24 +67,22 @@ class Ui_frmServerTerminal(object):
         self.horizontalLayout_2.addLayout(self.verticalLayout)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.lstTargetDirs = QtWidgets.QListWidget(self.widget)
+        self.lstTargetDirs = QtWidgets.QListWidget(self.layoutWidget)
         self.lstTargetDirs.setDragEnabled(True)
-        self.lstTargetDirs.setSelectionMode(
-            QtWidgets.QAbstractItemView.MultiSelection)
-        self.lstTargetDirs.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectItems)
+        self.lstTargetDirs.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+        self.lstTargetDirs.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.lstTargetDirs.setObjectName("lstTargetDirs")
         self.verticalLayout_2.addWidget(self.lstTargetDirs)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.btnBrowse = QtWidgets.QPushButton(self.widget)
+        self.btnBrowse = QtWidgets.QPushButton(self.layoutWidget)
         font = QtGui.QFont()
         font.setFamily("Myriad Pro")
         font.setPointSize(12)
         self.btnBrowse.setFont(font)
         self.btnBrowse.setObjectName("btnBrowse")
         self.horizontalLayout.addWidget(self.btnBrowse)
-        self.btnRemove = QtWidgets.QPushButton(self.widget)
+        self.btnRemove = QtWidgets.QPushButton(self.layoutWidget)
         font = QtGui.QFont()
         font.setFamily("Myriad Pro")
         font.setPointSize(12)
@@ -105,46 +91,44 @@ class Ui_frmServerTerminal(object):
         self.horizontalLayout.addWidget(self.btnRemove)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
         self.horizontalLayout_2.addLayout(self.verticalLayout_2)
-        self.widget1 = QtWidgets.QWidget(self.centralwidget)
-        self.widget1.setGeometry(QtCore.QRect(10, 10, 641, 22))
-        self.widget1.setObjectName("widget1")
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.widget1)
+        self.layoutWidget1 = QtWidgets.QWidget(self.centralwidget)
+        self.layoutWidget1.setGeometry(QtCore.QRect(10, 10, 641, 22))
+        self.layoutWidget1.setObjectName("layoutWidget1")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget1)
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.lblListOfConnection = QtWidgets.QLabel(self.widget1)
+        self.lblListOfConnection = QtWidgets.QLabel(self.layoutWidget1)
         font = QtGui.QFont()
         font.setFamily("Myriad Pro")
         font.setPointSize(12)
         self.lblListOfConnection.setFont(font)
         self.lblListOfConnection.setObjectName("lblListOfConnection")
         self.horizontalLayout_3.addWidget(self.lblListOfConnection)
-        spacerItem = QtWidgets.QSpacerItem(
-            138, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(138, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
-        self.lblTargetDirectories = QtWidgets.QLabel(self.widget1)
+        self.lblTargetDirectories = QtWidgets.QLabel(self.layoutWidget1)
         font = QtGui.QFont()
         font.setFamily("Myriad Pro")
         font.setPointSize(12)
         self.lblTargetDirectories.setFont(font)
         self.lblTargetDirectories.setObjectName("lblTargetDirectories")
         self.horizontalLayout_3.addWidget(self.lblTargetDirectories)
-        spacerItem1 = QtWidgets.QSpacerItem(
-            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem1)
-        self.lblDetails = QtWidgets.QLabel(self.widget1)
+        self.lblDetails = QtWidgets.QLabel(self.layoutWidget1)
         font = QtGui.QFont()
         font.setFamily("Myriad Pro")
         font.setPointSize(12)
         self.lblDetails.setFont(font)
         self.lblDetails.setObjectName("lblDetails")
         self.horizontalLayout_3.addWidget(self.lblDetails)
-        self.widget2 = QtWidgets.QWidget(self.centralwidget)
-        self.widget2.setGeometry(QtCore.QRect(570, 300, 241, 131))
-        self.widget2.setObjectName("widget2")
-        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.widget2)
+        self.layoutWidget2 = QtWidgets.QWidget(self.centralwidget)
+        self.layoutWidget2.setGeometry(QtCore.QRect(570, 300, 241, 131))
+        self.layoutWidget2.setObjectName("layoutWidget2")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.layoutWidget2)
         self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.btnStartServer = QtWidgets.QPushButton(self.widget2)
+        self.btnStartServer = QtWidgets.QPushButton(self.layoutWidget2)
         font = QtGui.QFont()
         font.setFamily("Myriad Pro")
         font.setPointSize(22)
@@ -156,25 +140,23 @@ class Ui_frmServerTerminal(object):
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        self.lblInputIP = QtWidgets.QLabel(self.widget2)
+        self.lblInputIP = QtWidgets.QLabel(self.layoutWidget2)
         self.lblInputIP.setObjectName("lblInputIP")
         self.horizontalLayout_5.addWidget(self.lblInputIP)
-        spacerItem2 = QtWidgets.QSpacerItem(
-            38, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem2 = QtWidgets.QSpacerItem(38, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem2)
-        self.linInputIP = QtWidgets.QLineEdit(self.widget2)
+        self.linInputIP = QtWidgets.QLineEdit(self.layoutWidget2)
         self.linInputIP.setObjectName("linInputIP")
         self.horizontalLayout_5.addWidget(self.linInputIP)
         self.verticalLayout_3.addLayout(self.horizontalLayout_5)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.lblPort = QtWidgets.QLabel(self.widget2)
+        self.lblPort = QtWidgets.QLabel(self.layoutWidget2)
         self.lblPort.setObjectName("lblPort")
         self.horizontalLayout_4.addWidget(self.lblPort)
-        spacerItem3 = QtWidgets.QSpacerItem(
-            28, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem3 = QtWidgets.QSpacerItem(28, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem3)
-        self.linPort = QtWidgets.QLineEdit(self.widget2)
+        self.linPort = QtWidgets.QLineEdit(self.layoutWidget2)
         self.linPort.setObjectName("linPort")
         self.horizontalLayout_4.addWidget(self.linPort)
         self.verticalLayout_3.addLayout(self.horizontalLayout_4)
@@ -220,23 +202,17 @@ class Ui_frmServerTerminal(object):
 
     def retranslateUi(self, frmServerTerminal):
         _translate = QtCore.QCoreApplication.translate
-        frmServerTerminal.setWindowTitle(_translate(
-            "frmServerTerminal", "Server Terminal"))
-        self.lblStatusLog.setText(_translate(
-            "frmServerTerminal", "Status Log:"))
+        frmServerTerminal.setWindowTitle(_translate("frmServerTerminal", "Server Terminal"))
+        self.lblStatusLog.setText(_translate("frmServerTerminal", "Status Log:"))
         self.btnKick.setText(_translate("frmServerTerminal", "KICK"))
         self.btnBrowse.setText(_translate("frmServerTerminal", "BROWSE"))
         self.btnRemove.setText(_translate("frmServerTerminal", "REMOVE"))
-        self.lblListOfConnection.setText(_translate(
-            "frmServerTerminal", "List of Connections"))
-        self.lblTargetDirectories.setText(_translate(
-            "frmServerTerminal", "Target Directories"))
-        self.lblDetails.setText(_translate(
-            "frmServerTerminal", "Item Details"))
+        self.lblListOfConnection.setText(_translate("frmServerTerminal", "List of Connections"))
+        self.lblTargetDirectories.setText(_translate("frmServerTerminal", "Target Directories"))
+        self.lblDetails.setText(_translate("frmServerTerminal", "Item Details"))
         self.btnStartServer.setText(_translate("frmServerTerminal", "START"))
         self.lblInputIP.setText(_translate("frmServerTerminal", "IP Address"))
-        self.linInputIP.setText(_translate(
-            "frmServerTerminal", "192.168.1.118"))
+        self.linInputIP.setText(_translate("frmServerTerminal", "192.168.1.118"))
         self.lblPort.setText(_translate("frmServerTerminal", "Port Number"))
         self.linPort.setText(_translate("frmServerTerminal", "8000"))
         self.mnuFile.setTitle(_translate("frmServerTerminal", "File"))
@@ -244,127 +220,19 @@ class Ui_frmServerTerminal(object):
         self.actionHelp.setText(_translate("frmServerTerminal", "Help"))
         self.actionReset.setText(_translate("frmServerTerminal", "Reset"))
         self.actionClose.setText(_translate("frmServerTerminal", "Close"))
-        self.actionSettigns.setText(
-            _translate("frmServerTerminal", "Settings"))
-        self.actionReconnection.setText(
-            _translate("frmServerTerminal", "Reconnection"))
-        self.actionAuto_Sleep.setText(
-            _translate("frmServerTerminal", "Auto Sleep"))
-        self.actionClear_Log.setText(_translate(
-            "frmServerTerminal", "Clear Status Log"))
-        self.actionBase_Path.setText(
-            _translate("frmServerTerminal", "Base Path"))
-
-    def menu_actions(self):
-        self.actionClear_Log.triggered.connect(self.menu_clear_log)
-        self.actionBase_Path.triggered.connect(self.menu_Base_Path)
-        self.actionReset.triggered.connect(self.menu_reset)
-
-    def btn_clicked(self):
-        self.btnStartServer.clicked.connect(self.set_server_for_ui)
-        self.btnBrowse.clicked.connect(self.browse_directory)
-        self.btnRemove.clicked.connect(self.remove_directory)
-
-    def remove_directory(self):
-        row = self.lstTargetDirs.currentRow()
-        if row < 0:
-            return
-        item = self.lstTargetDirs.takeItem(row)
-        self.txtStatusUpdate.append('Deleted ' + item.text())
-        del item
-
-    def add_connection(self, name):
-        row = self.lstListOfConn.currentRow()
-        self.lstListOfConn.insertItem(row, name)
-
-    def browse_directory(self):
-        global server
-        if not server:
-            self.txtStatusUpdate.append(
-                "No server set yet. Please set a server before adding a directory.")
-            return 1
-        dir_name = QtWidgets.QFileDialog.getExistingDirectory(
-            None, 'Select a Directory', LIB_PATH, QtWidgets.QFileDialog.ShowDirsOnly)
-        if dir_name:
-            obs = sw.Observer(server, LIB_PATH, TARGET_PATH)
-            self.txtStatusUpdate.append('Folder selected: ' + dir_name)
-            server.set_list_of_observer(obs)
-            self.refresh_directory()
-
-    def set_server_for_ui(self):
-        global server
-
-        try:
-            input_ip = self.linInputIP.text()
-            input_port = int(self.linPort.text())
-        except ValueError:
-            self.txtStatusUpdate.append('Error: Bad Input')
-            return
-        self.txtStatusUpdate.append('Initializing Server...')
-        server = sw.Server()
-        if server.set_server_connection(input_ip, input_port, 3) == 1:
-            self.txtStatusUpdate.append("Error: Failed to start server")
-        self.txtStatusUpdate.append(
-            "Server set at IP: " + str(input_ip) + " Port: " + str(input_port))
-        self.btnStartServer.setDisabled(True)
-
-        t1.start()
-        t3.start()
-
-    def menu_reset(self):
-        self.menu_clear_log()
-        self.btnStartServer.setDisabled(False)
-
-    def menu_Base_Path(self):
-        global LIB_PATH
-        temp = QtWidgets.QInputDialog.getText(
-            None, 'Select Base Directory', 'Type the location of the directory', text=LIB_PATH)[0]
-        if temp:
-            self.txtStatusUpdate.append('New base directory at: ' + temp)
-            LIB_PATH = temp
-        else:
-            self.txtStatusUpdate.append('Note: Failed to change base directory')
-
-    def menu_clear_log(self):
-        self.txtStatusUpdate.clear()
-
-    def refresh_directory(self):
-        self.lstTargetDirs.clear()
-        for observer in server.list_of_observer:
-            row = self.lstTargetDirs.currentRow()
-            self.lstTargetDirs.insertItem(row, observer.get_target_path())
-
-    def refresh_list_of_conn(self):
-        pass
-
-
-def connection_loop():
-    while True:
-        server.listen(MAX_CONNECTION)
-        conn, addr = server.accept()
-        print("Connection Address:" + str(addr) +
-              " " + str(datetime.datetime.now()))
-        server.echo_connection(conn, conn.recv(BUFFER_SIZE))
-        ui.add_connection(str(addr))
-
-
-def alive_message_loop():
-    while True:
-        if sw.check_connection(server.get_list_of_connection()):
-            ui.txtStatusUpdate.append('Someone got kicked out')
-        time.sleep(0.5)
+        self.actionSettigns.setText(_translate("frmServerTerminal", "Settings"))
+        self.actionReconnection.setText(_translate("frmServerTerminal", "Reconnection"))
+        self.actionAuto_Sleep.setText(_translate("frmServerTerminal", "Auto Sleep"))
+        self.actionClear_Log.setText(_translate("frmServerTerminal", "Clear Status Log"))
+        self.actionBase_Path.setText(_translate("frmServerTerminal", "Base Path"))
 
 
 if __name__ == "__main__":
-    server = None
-    t1 = threading.Thread(target=connection_loop, name='connection_loop')
-    # t2 = threading.Thread(target=communication_loop, name='communication_loop')
-    t3 = threading.Thread(target=alive_message_loop, name='alive_message_loop')
-
+    import sys
     app = QtWidgets.QApplication(sys.argv)
-    ServerTerminal = QtWidgets.QMainWindow()
+    frmServerTerminal = QtWidgets.QMainWindow()
     ui = Ui_frmServerTerminal()
-    ui.UI_master(ServerTerminal)
-    ServerTerminal.show()
-
+    ui.setupUi(frmServerTerminal)
+    frmServerTerminal.show()
     sys.exit(app.exec_())
+
