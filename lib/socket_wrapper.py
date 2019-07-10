@@ -136,7 +136,7 @@ class Server:
                 time.sleep(attempt_to_reconnect)
                 self.set_server_connection(
                     TCP_IP, TCP_PORT, attempt_to_reconnect)
-            return 1, 1
+            return 1
         return TCP_IP, TCP_PORT
 
     def set_list_of_connection(self, _socket, operation=0, index=None):

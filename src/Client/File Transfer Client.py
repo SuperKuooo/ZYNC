@@ -7,6 +7,7 @@ class Ui_frmClient(object):
 
         self.setupUi(frmClientTerminal)
         self.retranslateUi(frmClientTerminal)
+        self.button_clicked()
         
     def setupUi(self, frmClientTerminal):
         frmClientTerminal.setObjectName("frmClientTerminal")
@@ -127,23 +128,29 @@ class Ui_frmClient(object):
         self.lblDetails.setText(_translate("frmClientTerminal", "Item Details"))
         self.btnStartClient.setText(_translate("frmClientTerminal", "START"))
         self.lblInputIP.setText(_translate("frmClientTerminal", "IP Address"))
-        self.linInputIP.setText(_translate("frmClientTerminal", "192.168.1.118"))
+        self.linInputIP.setText(_translate("frmClientTerminal", "192.168.1.97"))
         self.lblPort.setText(_translate("frmClientTerminal", "Port Number"))
         self.linPort.setText(_translate("frmClientTerminal", "8000"))
         self.lblStatusLog.setText(_translate("frmClientTerminal", "Status Log:"))
 
     def button_clicked(self):
-        pass
+        self.btnStartClient.clicked.connect(self.set_client_for_ui)
     
     def set_client_for_ui(self):
+        global client
+        self.txtStatusUpdate.append('Initializing client...')
         try:
             input_ip = self.linInputIP.text()
             input_port = int(self.linPort.text())
         except ValueError:
             self.txtStatusUpdate.append('Error: Bad Input')
             return
-
-        client.set_client_connection(input_ip, input_port, 5)
+        client = sw.Client()
+        if client.set_client_connection(input_ip, input_port, 5):
+            self.txtStatusUpdate.append('Error: Failed to start client')
+        self.txtStatusUpdate.append('Connected to server')
+        self.btnStartClient.setDisabled(True)
+        self.btnStartClient.setText('Connected')
             
     
 
@@ -151,7 +158,7 @@ class Ui_frmClient(object):
 if __name__ == "__main__":
     sys.path.append(os.getcwd())
     import lib.socket_wrapper as sw
-    client = sw.Client()
+    client = None
 
 
 
