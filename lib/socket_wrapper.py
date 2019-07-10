@@ -170,10 +170,16 @@ class Server:
         return len(self.list_of_observer)
 
     def get_list_of_connection(self, index=None):
-        if index == None:
+        if not index:
             return self.list_of_connection
         else:
-            return self.list_of_connection[None]
+            return self.list_of_connection[index]
+
+    def get_list_of_observer(self, index=None):
+        if not index:
+            return self.list_of_observer
+        else:
+            return self.list_of_observer[index]
 
     def get_server_name(self):
         return self.name
