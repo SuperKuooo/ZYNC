@@ -230,7 +230,7 @@ class Ui_frmServerTerminal(object):
         self.btnStartServer.setText(_translate("frmServerTerminal", "START"))
         self.lblInputIP.setText(_translate("frmServerTerminal", "IP Address"))
         self.linInputIP.setText(_translate(
-            "frmServerTerminal", "192.168.1.118"))
+            "frmServerTerminal", "192.168.1.97"))
         self.lblPort.setText(_translate("frmServerTerminal", "Port Number"))
         self.linPort.setText(_translate("frmServerTerminal", "8000"))
         self.mnuFile.setTitle(_translate("frmServerTerminal", "File"))
@@ -287,14 +287,13 @@ class Ui_frmServerTerminal(object):
 
     def set_server_for_ui(self):
         global server, RUN
-
+        self.txtStatusUpdate.append('Initializing Server...')
         try:
             input_ip = self.linInputIP.text()
             input_port = int(self.linPort.text())
         except ValueError:
             self.txtStatusUpdate.append('Error: Bad Input')
             return
-        self.txtStatusUpdate.append('Initializing Server...')
         server = sw.Server()
         if server.set_server_connection(input_ip, input_port, 3) == 1:
             self.txtStatusUpdate.append("Error: Failed to start server")
@@ -327,6 +326,8 @@ class Ui_frmServerTerminal(object):
             t1.join()
             t3.join()
             server = None
+            self.refresh_directory()
+            self.refresh_list_of_conn()
             self.btnStartServer.setDisabled(False)
             self.btnStartServer.setText('START')
 
@@ -346,14 +347,22 @@ class Ui_frmServerTerminal(object):
         self.txtStatusUpdate.clear()
 
     def refresh_directory(self):
+        if not server:
+            return 1
         self.lstTargetDirs.clear()
-        for observer in server.list_of_observer:
+        for observer in server.get_list_of_observer():
             row = self.lstTargetDirs.currentRow()
             self.lstTargetDirs.insertItem(row, observer.get_target_path())
         self.txtStatusUpdate.append(
             'Number of Directories: {}'.format(server.get_num_of_observer()))
 
     def refresh_list_of_conn(self):
+        self.lstListOfConn.clear()
+        if not server:
+            return 1
+        for conn in server.get_list_of_connection():
+            row = self.lstTargetDirs.currentRow()
+            self.lstListOfConn.insertItem(row, str(conn))
         self.txtStatusUpdate.append(
             'Number of Connections: {}'.format(server.get_num_of_connection()))
 
@@ -370,6 +379,7 @@ def connection_loop():
               " " + str(datetime.datetime.now()))
         server.echo_connection(conn, conn.recv(BUFFER_SIZE))
         ui.add_connection(str(addr))
+        ui.refresh_list_of_conn()
     return 0
 
 
