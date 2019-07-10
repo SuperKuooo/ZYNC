@@ -1,4 +1,4 @@
-This is where all the build files go
+This is where all the build/zipped files go
 
 Jerry Kuo
 4th July, 2019

@@ -6,7 +6,8 @@ import datetime
 from watchdog.observers import Observer as OBS
 
 DATE = datetime.date.today()
-DEFAULT_IP = 'localhost'
+DATE_TIME = datetime.datetime.now()
+DEFAULT_IP = '192.168.1.118'
 DEFAULT_PORT = 8000
 BUFFER_SIZE = 4096
 
@@ -19,10 +20,16 @@ def zip_folder(output, target):
         print("Error: Failed to zip file")
 
 def check_connection(list_of_connection):
+    _list = []
+    i = 0
     for _socket in list_of_connection:
         temp = Client(_socket)
-        temp.s.settimeout(5)
         temp.send_string('0')
+        if temp.recv(1) == 1:
+            _list.append(list_of_connection[i])
+            list_of_connection.pop(i)
+        i += 1
+    return _list
 
 
 class Client:
@@ -82,18 +89,21 @@ class Client:
         try:
             with open(location, 'rb') as fp:
                 b = bytearray(fp.read())
-                print(b[0])
                 self.s.sendall(b)
         except socket.error:
             print("Error: Failed to send image")
             return 1
-        print("Image sent")
         return 0
 
     def send_zip(self, location):
-        with open(location, 'rb') as fp:
-            self.s.sendall(fp.read())
-            print("Sending")
+        try:
+            with open(location, 'rb') as fp:
+                self.s.sendall(fp.read())
+                print("Sending")
+        except socket.error:
+            print("Error: Failed to send zip")
+            return 1
+        return 0
 
     def save_file(self, buffer, filepointer):
         print('zip received')
@@ -112,6 +122,7 @@ class Client:
 class Server:
     def __init__(self):
         self.list_of_connection = []
+        self.list_of_observer = []
         self.name = socket.gethostname()
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -144,6 +155,14 @@ class Server:
         else:
             print('Error: Invalid operation')
 
+    def set_list_of_observer(self, _observer, operation=0, index=None):
+        if operation == 0:
+            self.list_of_observer.append(_observer)
+        elif operation == 2:
+            if index != None:
+                self.list_of_observer.pop(index)
+        
+
     def get_num_of_connection(self):
         return len(self.list_of_connection)
 
@@ -152,6 +171,9 @@ class Server:
             return self.list_of_connection
         else:
             return self.list_of_connection[None]
+
+    def get_server_name(self):
+        return self.name
 
     def echo_connection(self, conn, message):
         message = message.decode("utf-8")
@@ -170,15 +192,14 @@ class Server:
         else:
             target_audience = self.get_list_of_connection(client_index)
 
-        b = bytes(message, "utf-8")
-
-        for val, conn in enumerate(target_audience):
+        for conn in target_audience:
             try:
-                conn.send(b)
+                temp = Client(conn)
+                temp.send_string(message)
+                print('Sending zip')
             except socket.error:
                 print("Error: Failed to send message")
-                self.set_list_of_connection(None, 2, val)
-            print("Message sent")
+                return 1
         return 0
 
     def broadcast_zip(self, location, client_index=None):
@@ -191,11 +212,10 @@ class Server:
             try:
                 with open(location, 'rb') as fp:
                     conn.sendall(fp.read())
-                    print("Sending")
-                return 0
-            except:
+            except socket.error:
                 print("Error: Failed to send zip")
-                return 0
+                return 1
+        return 0
 
     def close(self):
         for conn in self.list_of_connection:
@@ -221,6 +241,9 @@ class Observer:
     def set_server(self, server):
         self.server = server
 
+    def get_target_path(self):
+        return self.target_path
+
     def start_observe(self, recursive=False):
         self.obs.schedule(self.handler, self.tot_path, recursive)
         self.obs.start()
@@ -241,9 +264,8 @@ class Handler:
         if(event.src_path.endswith('.log')):
             print('Logfile Modified')
             filename = os.path.join('./archive', self.target_path, str(DATE))
-            # zip_folder(filename, self.tot_path)
-            print(self.server.get_num_of_connection())
-            self.server.broadcast_string('Sending zip')
-            # self.server.broadcast_zip(os.path.join('./archive', self.target_path, str(DATE) + '.zip'))
-        else:
-            pass
+            zip_folder(filename, self.tot_path)
+            self.server.broadcast_string('zip')
+            time.sleep(0.1)
+            self.server.broadcast_zip(os.path.join('./archive', self.target_path, str(DATE) + '.zip'))
+            print('done shipping')

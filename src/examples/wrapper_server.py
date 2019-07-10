@@ -1,8 +1,8 @@
 import threading
-import socket_wrapper as sw
-import logging
 import time
 import datetime
+import sys, os; sys.path.append(os.getcwd())
+import lib.socket_wrapper as sw
 
 # Helpful command
 # python generate_log_script.py univrse-Windows ./Univrse-Core/Windows/
@@ -40,7 +40,7 @@ def communication_loop():
 def alive_message_loop():
     while True:
         sw.check_connection(server.get_list_of_connection())
-        time.sleep(0.05)
+        time.sleep(0.5)
 
 
 if __name__ == "__main__":
@@ -53,9 +53,11 @@ if __name__ == "__main__":
 
     try:
         t1.start()
-        t2.start()
+        # t2.start()
+        t3.start()
     except KeyboardInterrupt:
         t1.join()
         t2.join()
+        t3.join()
         observer.close()
         server.close()
