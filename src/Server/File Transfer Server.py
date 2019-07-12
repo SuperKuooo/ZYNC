@@ -517,7 +517,7 @@ class ConnectionThread(QtCore.QObject):
         return 0
 
 if __name__ == "__main__":
-    sys.path.append('.\\src')
+    sys.path.append('..//')
     import lib.socket_wrapper as sw
 
     app = QtWidgets.QApplication(sys.argv)

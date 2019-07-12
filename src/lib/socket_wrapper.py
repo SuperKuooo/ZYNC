@@ -36,7 +36,7 @@ def check_connection(list_of_connection: List[socket.socket]) -> List[socket.soc
 
 
 class Client:
-    def __init__(self, conn: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)):
+    def __init__(self, conn: socket.socket = None):
         print('new client')
         self.s = conn
         self.name = socket.gethostname()
@@ -51,6 +51,7 @@ class Client:
         while restart > 0:
             restart -= 1
             try:
+                self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.s.settimeout(2)
                 self.s.connect((TCP_IP, TCP_PORT))
                 break
