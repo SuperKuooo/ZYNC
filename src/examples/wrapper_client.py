@@ -1,6 +1,7 @@
 import time
 import threading
 import sys, os; sys.path.append(os.getcwd())
+sys.path.append(os.getcwd()+'\\File Transfer')
 import lib.socket_wrapper as sw
 
 reconnect_time = 3
@@ -39,7 +40,7 @@ def alive_message_loop():
 if __name__ == '__main__':
     client = sw.Client()
     setup('192.168.1.118', 8000)
-    t1 = threading.Thread(target=communication_loop(), name='communication_loop')
+    t1 = threading.Thread(target=communication_loop, name='communication_loop')
     t2 = threading.Thread(target=alive_message_loop(), name='alive_message_loop')
 
     try:

@@ -2,6 +2,7 @@ import socket
 import os
 import time
 import shutil
+from typing import List, Union, Tuple
 import datetime
 from watchdog.observers import Observer as OBS
 
@@ -12,20 +13,22 @@ DEFAULT_PORT = 8000
 BUFFER_SIZE = 4096
 
 
-def zip_folder(output, target):
-    print("Zipping Target...")
+def zip_folder(output: str, target: str) -> int:
+    # print("Zipping Target...")
     try:
         shutil.make_archive(output, "zip", target)
     except shutil.Error:
-        print("Error: Failed to zip file")
+        return 1
+        # print("Error: Failed to zip file")
+    return 0
 
-def check_connection(list_of_connection):
+
+def check_connection(list_of_connection: List[socket.socket]) -> List[socket.socket]:
     _list = []
     i = 0
     for _socket in list_of_connection:
         temp = Client(_socket)
-        temp.send_string('0')
-        if temp.recv(1) == 1:
+        if temp.send_string('0') or temp.recv(1) == 1:
             _list.append(list_of_connection[i])
             list_of_connection.pop(i)
         i += 1
@@ -33,22 +36,32 @@ def check_connection(list_of_connection):
 
 
 class Client:
-    def __init__(self, conn=socket.socket(socket.AF_INET, socket.SOCK_STREAM)):
+    def __init__(self, conn: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)):
+        print('new client')
         self.s = conn
         self.name = socket.gethostname()
 
-    def set_client_connection(self, TCP_IP, TCP_PORT, attempt_to_reconnect=0):
-        try:
-            self.s.settimeout(2)
-            self.s.connect((TCP_IP, TCP_PORT))
-        except socket.error:
-            print("Error: Failed to connect to server")
-            if attempt_to_reconnect:
-                print("Retrying in " + str(attempt_to_reconnect) + " seconds...")
-                time.sleep(attempt_to_reconnect)
-                print("Starting client...")
-                self.set_client_connection(TCP_IP, TCP_PORT, attempt_to_reconnect)
-            return 1
+    def __del__(self):
+        print('destroyed')
+
+    def set_client_connection(self, TCP_IP: str, TCP_PORT: int, time_to_reconnect:int=0, num_of_reconnects:int=0) -> int:
+        restart = num_of_reconnects
+        if not num_of_reconnects:
+            restart = float('inf')
+        while restart > 0:
+            restart -= 1
+            try:
+                self.s.settimeout(2)
+                self.s.connect((TCP_IP, TCP_PORT))
+                break
+            except socket.error:
+                # print(TCP_IP, TCP_PORT)
+                if time_to_reconnect:
+                    print("Reconnecting in " + str(time_to_reconnect) + " seconds...")
+                    time.sleep(time_to_reconnect)
+                    continue
+                    # print("Starting client...")
+                return 1
         return 0
 
     def get_client_name(self):
@@ -58,23 +71,23 @@ class Client:
         if not message:
             message = self.name + '///is online'
         self.s.settimeout(5)
-        data = self.s.recv(BUFFER_SIZE)
-        if data.decode("utf-8") != message:
+        data = self.s.recv(BUFFER_SIZE).decode('utf-8')
+        if data != message:
+            print(message)
+            print(data)
             raise UserWarning('Error: different echo value')
-        print('Echo Success')
+        # print('Echo Success')
         return 0
 
-    def recv(self, buffer_size):
+    def recv(self, buffer_size: int):
         try:
-            self.s.settimeout(3600)
+            self.s.settimeout(2)
             return self.s.recv(buffer_size)
         except socket.error:
-            print('Warning: Timeout')
-            return None
-        except KeyboardInterrupt:
-            return 'break'
+            # print('Warning: Timeout')
+            return 1
 
-    def send_string(self, message, raw=False):
+    def send_string(self, message, raw: bool = False):
         b = message
         if not raw:
             b = bytes(message, 'utf-8')
@@ -85,7 +98,7 @@ class Client:
             return 1
         return 0
 
-    def send_image(self, location):
+    def send_image(self, location: str):
         try:
             with open(location, 'rb') as fp:
                 b = bytearray(fp.read())
@@ -95,7 +108,7 @@ class Client:
             return 1
         return 0
 
-    def send_zip(self, location):
+    def send_zip(self, location: str):
         try:
             with open(location, 'rb') as fp:
                 self.s.sendall(fp.read())
@@ -105,28 +118,39 @@ class Client:
             return 1
         return 0
 
-    def save_file(self, buffer, filepointer):
-        print('zip received')
-        while True:
-            data = self.s.recv(buffer)
-            if not data:
-                break
-            filepointer.write(data)
-        print('zip saved')
+    def save_file(self, buffer, filepointer) -> int:
+        # print('zip received')
+        try:
+            while True:
+                data = self.s.recv(buffer)
+                if not data:
+                    break
+                filepointer.write(data)
+        except FileNotFoundError:
+            # print('Error: Failed to save file')
+            return 1
+        return 0
+        # print('zip saved')
 
-    def close(self):
-        self.send_string('terminating')
+    def close(self) -> int:
+        # print(terminating)
+        # self.send_string('terminating')
         self.s.close()
+        return 0
 
 
 class Server:
     def __init__(self):
+        print('new server')
         self.list_of_connection = []
         self.list_of_observer = []
         self.name = socket.gethostname()
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    def __del__(self):
+        print('gone server')
 
-    def set_server_connection(self, TCP_IP=DEFAULT_IP, TCP_PORT=DEFAULT_PORT, attempt_to_reconnect=0):
+    def set_server_connection(self, TCP_IP:str=DEFAULT_IP, TCP_PORT:int=DEFAULT_PORT, attempt_to_reconnect:int=0) -> Union[int, Tuple[str, int]]:
         try:
             self.s.bind((TCP_IP, TCP_PORT))
         except socket.error:
@@ -137,9 +161,9 @@ class Server:
                 self.set_server_connection(
                     TCP_IP, TCP_PORT, attempt_to_reconnect)
             return 1
-        return TCP_IP, TCP_PORT
+        return (TCP_IP, TCP_PORT)
 
-    def set_list_of_connection(self, _socket, operation=0, index=None):
+    def set_list_of_connection(self, _socket:Client=None, operation:int=0, index:int=None) -> int:
         if operation == 0:
             # Append
             self.list_of_connection.append(_socket)
@@ -151,40 +175,53 @@ class Server:
             if index != None:
                 self.list_of_connection.pop(index)
         elif operation == 3:
+            # Clears the connection
             self.list_of_connection.clear()
         else:
-            print('Error: Invalid operation')
+            # print('Error: Invalid operation')
+            return 1
+        return 0
 
-    def set_list_of_observer(self, _observer, operation=0, index=None):
+    def set_list_of_observer(self, _observer:'Observer'=None, operation=0, index=None) -> int:
         if operation == 0:
             self.list_of_observer.append(_observer)
+        elif operation == 1:
+            self.list_of_observer = _observer
         elif operation == 2:
             if index != None:
+                self.list_of_observer[index].close()
                 self.list_of_observer.pop(index)
-        
+        elif operation == 3:
+            for obs in self.list_of_observer:
+                obs.close()
+            self.list_of_observer.clear()
+        else:
+            print('Error: Invalid operation')
+            return 1
+        return 0
 
-    def get_num_of_connection(self):
+    def get_num_of_connection(self) -> int:
         return len(self.list_of_connection)
 
-    def get_num_of_observer(self):
+    def get_num_of_observer(self) -> int:
         return len(self.list_of_observer)
 
-    def get_list_of_connection(self, index=None):
+    def get_list_of_connection(self, index:int=None) -> Union[List[socket.socket], socket.socket]:
         if not index:
             return self.list_of_connection
         else:
             return self.list_of_connection[index]
 
-    def get_list_of_observer(self, index=None):
+    def get_list_of_observer(self, index:int=None) -> Union[List['Observer'], 'Observer']:
         if not index:
             return self.list_of_observer
         else:
             return self.list_of_observer[index]
 
-    def get_server_name(self):
+    def get_server_name(self) -> str:
         return self.name
 
-    def echo_connection(self, conn, message):
+    def echo_connection(self, conn:socket.socket, message):
         message = message.decode("utf-8")
         try:
             temp = Client(conn)
@@ -195,7 +232,7 @@ class Server:
 
         return 0
 
-    def broadcast_string(self, message, client_index=None):
+    def broadcast_string(self, message, client_index:int=None):
         if client_index == None:
             target_audience = self.get_list_of_connection()
         else:
@@ -205,13 +242,13 @@ class Server:
             try:
                 temp = Client(conn)
                 temp.send_string(message)
-                print('Sending zip')
+                # print('Sending zip')
             except socket.error:
                 print("Error: Failed to send message")
                 return 1
         return 0
 
-    def broadcast_zip(self, location, client_index=None):
+    def broadcast_zip(self, location:str, client_index:int=None):
         if client_index == None:
             target_audience = self.get_list_of_connection()
         else:
@@ -233,7 +270,7 @@ class Server:
             obs.close()
         return self.s.close()
 
-    def listen(self, size):
+    def listen(self, size:int):
         return self.s.listen(size)
 
     def accept(self):
@@ -241,35 +278,50 @@ class Server:
 
 
 class Observer:
-    def __init__(self, server, lib_path, target_path):
+    def __init__(self, server=Server, lib_path=str, target_path=str):
         self.obs = OBS()
         self.server = server
         self.lib_path = lib_path
         self.target_path = target_path
         self.tot_path = os.path.join(lib_path, target_path)
         self.handler = Handler(server, lib_path, target_path)
+        # TODO: add a timing mode
+        # self.mode = True
 
-    def set_server(self, server):
+    def set_server(self, server=Server):
         self.server = server
+        return 0
 
-    def get_target_path(self):
+    def get_target_path(self) -> str:
         return self.target_path
 
-    def start_observe(self, recursive=False):
-        self.obs.schedule(self.handler, self.tot_path, recursive)
-        self.obs.start()
+    def start_observe(self, recursive:bool=False) -> int:
+        try:
+            self.obs.schedule(self.handler, self.tot_path, recursive)
+            self.obs.start()
+        except RuntimeError:
+            return 1
+        return 0
 
-    def close(self):
-        self.obs.stop()
-        self.obs.join()
+    def close(self) -> int:
+        try:
+            self.obs.stop()
+            self.obs.join()
+        except RuntimeError:
+            return 1
+        return 0
 
 
 class Handler:
-    def __init__(self, server, lib_path, target_path):
+    def __init__(self, server:Server, lib_path:str, target_path:str):
         self.server = server
         self.lib_path = lib_path
         self.target_path = target_path
         self.tot_path = os.path.join(lib_path, target_path)
+        self.last_success = str
+        self.last_attempt = str
+        self.total_attempts = int
+        self.save_directory = str
 
     def dispatch(self, event):
         if(event.src_path.endswith('.log')):
@@ -278,5 +330,12 @@ class Handler:
             zip_folder(filename, self.tot_path)
             self.server.broadcast_string('zip')
             time.sleep(0.1)
-            self.server.broadcast_zip(os.path.join('./archive', self.target_path, str(DATE) + '.zip'))
+            self.server.broadcast_zip(os.path.join(
+                './archive', self.target_path, str(DATE) + '.zip'))
             print('done shipping')
+        else:
+            return 1
+        return 0
+
+    def get_details(self):
+        return [self.last_success, self.last_attempt, self.total_attempts, self.save_directory]

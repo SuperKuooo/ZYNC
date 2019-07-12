@@ -257,8 +257,68 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSave_Log"/>
+    <addaction name="actionClose"/>
+    <addaction name="actionReset"/>
+    <addaction name="actionHelp"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionAuto_Reconnect"/>
+    <addaction name="actionReconnect_Time"/>
+    <addaction name="actionTimeout"/>
+    <addaction name="actionSave_Directory"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionAuto_Reconnect">
+   <property name="text">
+    <string>Auto Reconnect</string>
+   </property>
+  </action>
+  <action name="actionTimeout">
+   <property name="text">
+    <string>Timeout</string>
+   </property>
+  </action>
+  <action name="actionReconnect_Time">
+   <property name="text">
+    <string>Reconnect Time</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionSave_Directory">
+   <property name="text">
+    <string>Save Location</string>
+   </property>
+  </action>
+  <action name="actionSave_Log">
+   <property name="text">
+    <string>Save Log</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
