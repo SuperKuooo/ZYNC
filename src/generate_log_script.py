@@ -2,6 +2,7 @@ import logging
 import datetime
 import sys
 
+# python generate_log_script.py univrse-Windows .\Univrse-Core\Windows\
 
 def setup():
     date = datetime.date.today()
