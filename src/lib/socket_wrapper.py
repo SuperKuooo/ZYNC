@@ -238,10 +238,9 @@ class Server:
             return self.list_of_connection[index]
 
     def get_list_of_observer(self, index:int=None) -> Union[List['Observer'], 'Observer']:
-        if not index:
+        if index == None:
             return self.list_of_observer
-        else:
-            return self.list_of_observer[index]
+        return self.list_of_observer[index]
 
     def get_server_name(self) -> str:
         return self.name
@@ -254,7 +253,6 @@ class Server:
             self.set_list_of_connection(conn)
         except socket.error:
             print("Error: Failed to echo client connection")
-
         return 0
 
     def broadcast_string(self, message, client_index:int=None):
@@ -343,10 +341,10 @@ class Handler:
         self.lib_path = lib_path
         self.target_path = target_path
         self.tot_path = os.path.join(lib_path, target_path)
-        self.last_success = str
-        self.last_attempt = str
-        self.total_attempts = int
-        self.save_directory = str
+        self.last_success = 'tdoay'
+        self.last_attempt = '56 mins ago'
+        self.total_attempts = 16
+        self.save_directory = '/usr'
 
     def dispatch(self, event):
         if(event.src_path.endswith('.log')):

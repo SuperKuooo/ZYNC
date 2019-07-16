@@ -6,11 +6,12 @@ import sys
 import os
 import threading
 
-rn = datetime.datetime.now
 SAVE_LOCATION = '..\\..\\save'
 reconnect_time = 3
 BUFFER_SIZE = 4096
 client = None
+input_ip = None
+input_port = None
 
 
 class Ui_frmClient(object):
@@ -44,7 +45,8 @@ class Ui_frmClient(object):
         self.lblListOfConnection.setFont(font)
         self.lblListOfConnection.setObjectName("lblListOfConnection")
         self.horizontalLayout_11.addWidget(self.lblListOfConnection)
-        spacerItem = QtWidgets.QSpacerItem(138, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            138, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_11.addItem(spacerItem)
         self.lblDetails = QtWidgets.QLabel(self.layoutWidget)
         font = QtGui.QFont()
@@ -79,7 +81,8 @@ class Ui_frmClient(object):
         self.lblInputIP = QtWidgets.QLabel(self.layoutWidget_2)
         self.lblInputIP.setObjectName("lblInputIP")
         self.horizontalLayout_12.addWidget(self.lblInputIP)
-        spacerItem1 = QtWidgets.QSpacerItem(38, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            38, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_12.addItem(spacerItem1)
         self.linInputIP = QtWidgets.QLineEdit(self.layoutWidget_2)
         self.linInputIP.setObjectName("linInputIP")
@@ -90,7 +93,8 @@ class Ui_frmClient(object):
         self.lblPort = QtWidgets.QLabel(self.layoutWidget_2)
         self.lblPort.setObjectName("lblPort")
         self.horizontalLayout_13.addWidget(self.lblPort)
-        spacerItem2 = QtWidgets.QSpacerItem(28, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem2 = QtWidgets.QSpacerItem(
+            28, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_13.addItem(spacerItem2)
         self.linPort = QtWidgets.QLineEdit(self.layoutWidget_2)
         self.linPort.setObjectName("linPort")
@@ -124,7 +128,8 @@ class Ui_frmClient(object):
         self.txtStatusUpdate.setObjectName("txtStatusUpdate")
         self.lstTransferredFiles = QtWidgets.QListWidget(self.centralwidget)
         self.lstTransferredFiles.setGeometry(QtCore.QRect(12, 32, 541, 231))
-        self.lstTransferredFiles.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.lstTransferredFiles.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectRows)
         self.lstTransferredFiles.setObjectName("lstTransferredFiles")
         frmClientTerminal.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(frmClientTerminal)
@@ -170,28 +175,37 @@ class Ui_frmClient(object):
 
     def retranslateUi(self, frmClientTerminal):
         _translate = QtCore.QCoreApplication.translate
-        frmClientTerminal.setWindowTitle(_translate("frmClientTerminal", "Client Terminal"))
-        self.lblListOfConnection.setText(_translate("frmClientTerminal", "Transferred Files"))
-        self.lblDetails.setText(_translate("frmClientTerminal", "Item Details"))
+        frmClientTerminal.setWindowTitle(_translate(
+            "frmClientTerminal", "Client Terminal"))
+        self.lblListOfConnection.setText(_translate(
+            "frmClientTerminal", "Transferred Files"))
+        self.lblDetails.setText(_translate(
+            "frmClientTerminal", "Item Details"))
         self.btnStartClient.setText(_translate("frmClientTerminal", "START"))
         self.lblInputIP.setText(_translate("frmClientTerminal", "IP Address"))
-        self.linInputIP.setText(_translate("frmClientTerminal", "192.168.1.118"))
+        self.linInputIP.setText(_translate(
+            "frmClientTerminal", "192.168.1.118"))
         self.lblPort.setText(_translate("frmClientTerminal", "Port Number"))
         self.linPort.setText(_translate("frmClientTerminal", "8000"))
-        self.lblStatusLog.setText(_translate("frmClientTerminal", "Status Log:"))
+        self.lblStatusLog.setText(_translate(
+            "frmClientTerminal", "Status Log:"))
         self.menuFile.setTitle(_translate("frmClientTerminal", "File"))
         self.menuSettings.setTitle(_translate("frmClientTerminal", "Settings"))
-        self.actionAuto_Reconnect.setText(_translate("frmClientTerminal", "Auto Reconnect"))
+        self.actionAuto_Reconnect.setText(
+            _translate("frmClientTerminal", "Auto Reconnect"))
         self.actionTimeout.setText(_translate("frmClientTerminal", "Timeout"))
-        self.actionReconnect_Time.setText(_translate("frmClientTerminal", "Reconnect Time"))
+        self.actionReconnect_Time.setText(
+            _translate("frmClientTerminal", "Reconnect Time"))
         self.actionHelp.setText(_translate("frmClientTerminal", "Help"))
         self.actionClose.setText(_translate("frmClientTerminal", "Close"))
         self.actionReset.setText(_translate("frmClientTerminal", "Reset"))
-        self.actionSave_Directory.setText(_translate("frmClientTerminal", "Save Location"))
-        self.actionSave_Log.setText(_translate("frmClientTerminal", "Save Log"))
+        self.actionSave_Directory.setText(
+            _translate("frmClientTerminal", "Save Location"))
+        self.actionSave_Log.setText(
+            _translate("frmClientTerminal", "Save Log"))
 
     def button_clicked(self, frmClientTerminal):
-        frmClientTerminal.closeEvent=self.close_gui
+        frmClientTerminal.closeEvent = self.close_gui
         self.btnStartClient.clicked.connect(self.set_client_for_ui)
 
     def menu_actions(self):
@@ -203,8 +217,8 @@ class Ui_frmClient(object):
         box = QtWidgets.QMessageBox()
         box.setText('Do you want the client to auto reconnect?')
         box.setWindowTitle('Set Auto Connect')
-        box.setStandardButtons(QtWidgets.QMessageBox.Yes|
-                            QtWidgets.QMessageBox.No)
+        box.setStandardButtons(QtWidgets.QMessageBox.Yes |
+                               QtWidgets.QMessageBox.No)
         box.setIcon(QtWidgets.QMessageBox.Question)
 
         retval = box.exec_()
@@ -216,13 +230,15 @@ class Ui_frmClient(object):
     def change_save_location(self):
         dir_name = QtWidgets.QFileDialog.getExistingDirectory(
             None, 'Select a Directory')
-        
+
         if dir_name:
-            self.txtStatusUpdate.append('Save location changed to: ' + dir_name)
+            self.txtStatusUpdate.append(
+                'Save location changed to: ' + dir_name)
 
     def close_gui(self, e):
         global client
-        client  = None
+
+        client = None
         return self.connection.end()
 
     def update_messages(self):
@@ -231,75 +247,90 @@ class Ui_frmClient(object):
         if not self.connection.get_messages():
             return 1
         for message in self.connection.get_messages():
-            if message == 'RESET':
-                # client = None
-                # print('pausing thread')
-                self.connection.pause()
+            splt_message = message.split()
+            if splt_message[0] == 'RESET':
+                print('Connection Lost')
+                self.connection.pause_communication()
                 self.set_client_for_ui()
                 break
+            elif splt_message[0] == 'BUTTON':
+                self.btnStartClient.setText(splt_message[1])
+                continue
+
             self.txtStatusUpdate.append(message)
         self.connection.set_messages()
-        
+
     def set_client_for_ui(self):
-        global client
-        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Initializing client...')
+        global client, input_ip, input_port
+
+        self.txtStatusUpdate.append(sw.time_stamp(
+            dates=False) + 'Initializing client...')
         try:
             input_ip = self.linInputIP.text()
             input_port = int(self.linPort.text())
         except ValueError:
-            self.txtStatusUpdate.append('Error: Bad Input')
+            self.txtStatusUpdate.append(
+                sw.time_stamp(dates=False) + 'Error: Bad Input')
             return 1
 
-        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Attempting to connect to server')
-        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Do not close window')
+        self.txtStatusUpdate.append(sw.time_stamp(
+            dates=False) + 'Attempting to connect to server')
+        self.txtStatusUpdate.append(sw.time_stamp(
+            dates=False) + 'Do not close window')
 
         if not client:
             client = sw.Client()
 
-        if client.set_client_connection(input_ip, input_port, 3) == 1:
-            self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Failed to start client')
-            return 1
-
-        client.send_string(client.get_client_name() + "///is online")
-        client.confirm_connection()
-    
         self.btnStartClient.setDisabled(True)
-        self.btnStartClient.setText('Connected')
+        self.btnStartClient.setText('Connecting')
         self.linInputIP.setDisabled(True)
         self.linPort.setDisabled(True)
-        
-        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Connected to server')
-        self.connection.start()
+
+        self.connection.start_connection()
 
 
 class ConnectionThread(QtCore.QObject):
     sig = QtCore.pyqtSignal()
     messages = []
     RUN = False
-    standby = True
+    com_standby = True
+    con_standby = True
 
     def init(self):
         self.communication_loop = threading.Thread(
             target=self.communication_loop, name='communication_loop')
+        self.connection_loop = threading.Thread(
+            target=self.connection_loop, name='connection_loop')
 
-        self.pause()
+        self.pause_communication()
+        self.pause_connection()
+
         self.communication_loop.start()
+        self.connection_loop.start()
 
-    def start(self):
+    def start_communication(self):
         self.RUN = True
-        self.standby = False
+        self.com_standby = False
 
-    def pause(self):
+    def start_connection(self):
         self.RUN = True
-        self.standby = True
+        self.con_standby = False
+
+    def pause_communication(self):
+        self.RUN = True
+        self.com_standby = True
+
+    def pause_connection(self):
+        self.RUN = True
+        self.con_standby = True
 
     def end(self):
-        global client
         self.RUN = False
-        self.standby = False
+        self.con_standby = False
+        self.com_standby = False
         self.communication_loop.join()
-        client = None
-    
+        self.connection_loop.join()
+
     def get_messages(self):
         return self.messages
 
@@ -309,46 +340,66 @@ class ConnectionThread(QtCore.QObject):
     def communication_loop(self):
         global client
         while self.RUN:
-            while self.standby:
+            while self.com_standby:
                 time.sleep(1)
-            # print(rn(), 'waiting for + ', client.s.getsockname())
             try:
                 op = client.recv(BUFFER_SIZE)
             except AttributeError:
                 return 1
-            # print(op)
             if op == bytes('0', 'utf-8'):
-                # print('conn')
                 client.send_string(op, raw=True)
             elif op == bytes('zip', 'utf-8'):
-                print(op)
                 self.messages.append('FILE: Receiving ZIP')
                 self.sig.emit()
-                
+
                 ZIP_NAME = 'target.zip'
 
                 temp = os.path.join(SAVE_LOCATION, ZIP_NAME)
-                print(temp)
                 fp = open(temp, 'wb')
                 client.save_file(BUFFER_SIZE, fp)
 
                 self.messages.append('FILE: Finished transfer zip')
                 self.sig.emit()
                 fp.close()
+
             elif op == bytes('image', 'utf-8'):
                 fp = open('../save/shipment.jpg', 'wb')
-                # client.save_file(BUFFER_SIZE, fp)
+                client.save_file(BUFFER_SIZE, fp)
 
             else:
-                print(op)
-                print('connection lost')
+                print('Connection Lost')
                 self.messages.append('Error: Lost connection to server')
                 self.messages.append('RESET')
                 self.sig.emit()
-                self.pause()
-            
+                self.pause_communication()
+
             self.sig.emit()
             time.sleep(0.5)
+
+    def connection_loop(self):
+        while self.RUN:
+            while self.con_standby:
+                time.sleep(1)
+            try:
+                if client.set_client_connection(input_ip, input_port, reconnect_time) == 1:
+                    self.messages.append(sw.time_stamp(
+                        dates=False) + 'Failed to start client')
+                    self.sig.emit()
+                    return 1
+                else:
+                    client.send_string(
+                        client.get_client_name() + "///is online")
+                    client.confirm_connection()
+                    
+                    self.messages.append('BUTTON Connected')
+                    self.messages.append(sw.time_stamp(
+                        dates=False) + 'Connected to server')
+                    
+                    self.start_communication()
+                    self.pause_connection()
+                    self.sig.emit()
+            except AttributeError:
+                return 1  # Force thread to end
 
 
 if __name__ == "__main__":

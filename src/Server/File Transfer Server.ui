@@ -98,7 +98,7 @@
         <string>START</string>
        </property>
        <property name="shortcut">
-        <string>Return</string>
+        <string>Enter</string>
        </property>
       </widget>
      </item>
@@ -244,9 +244,9 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>164</x>
+      <x>184</x>
       <y>40</y>
-      <width>381</width>
+      <width>361</width>
       <height>231</height>
      </rect>
     </property>
@@ -281,7 +281,7 @@
           <string>BROWSE</string>
          </property>
          <property name="shortcut">
-          <string>Ctrl+B</string>
+          <string>.</string>
          </property>
         </widget>
        </item>
@@ -310,7 +310,7 @@
      <rect>
       <x>14</x>
       <y>42</y>
-      <width>141</width>
+      <width>160</width>
       <height>229</height>
      </rect>
     </property>
@@ -357,10 +357,10 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>13</x>
+      <x>15</x>
       <y>10</y>
       <width>631</width>
       <height>24</height>
@@ -392,7 +392,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>18</width>
+           <width>28</width>
            <height>20</height>
           </size>
          </property>
@@ -460,7 +460,6 @@
      <string>File</string>
     </property>
     <addaction name="actionClear_Log"/>
-    <addaction name="actionReset"/>
     <addaction name="actionHelp"/>
     <addaction name="actionSave_Log"/>
     <addaction name="actionClose"/>
@@ -471,7 +470,6 @@
     </property>
     <addaction name="actionBase_Path"/>
     <addaction name="actionReconnection"/>
-    <addaction name="actionAuto_Sleep"/>
    </widget>
    <addaction name="mnuFile"/>
    <addaction name="menuSettings"/>
