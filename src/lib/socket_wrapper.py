@@ -7,7 +7,7 @@ import datetime
 from watchdog.observers import Observer as OBS
 
 DATE = datetime.date.today()
-DATE_TIME = datetime.datetime.now()
+rn = datetime.datetime.now
 DEFAULT_IP = '192.168.1.118'
 DEFAULT_PORT = 8000
 BUFFER_SIZE = 4096
@@ -26,23 +26,50 @@ def zip_folder(output: str, target: str) -> int:
 def check_connection(list_of_connection: List[socket.socket]) -> List[socket.socket]:
     _list = []
     i = 0
+
     for _socket in list_of_connection:
+       # print(rn(), _socket)
         temp = Client(_socket)
-        if temp.send_string('0') or temp.recv(1) == 1:
+       #  print(temp.get_client_name())
+
+        if temp.send_string('0'):
+            # print(rn(), 'send')
+            _list.append(list_of_connection[i])
+            list_of_connection.pop(i)
+        elif temp.recv(1) == 1:
+            # print(rn(), 'recv')
             _list.append(list_of_connection[i])
             list_of_connection.pop(i)
         i += 1
     return _list
 
 
+def time_stamp(_type: int = 0, dates=True, microsecond=True) -> str:
+    if dates:
+        stamp = rn()
+    else:
+        stamp = rn().time()
+    temp = None
+
+    if _type == 1:
+        temp = "Conn: "
+    elif _type == 2:
+        temp = 'Error: '
+    elif _type == 3:
+        temp = 'project'
+    else:
+        temp = 'Debug: '
+
+    if not microsecond:
+        stamp = stamp.replace(microsecond=0)
+
+    return str(stamp) + " " + temp
+
+
 class Client:
     def __init__(self, conn: socket.socket = None):
-        print('new client')
         self.s = conn
         self.name = socket.gethostname()
-
-    def __del__(self):
-        print('destroyed')
 
     def set_client_connection(self, TCP_IP: str, TCP_PORT: int, time_to_reconnect:int=0, num_of_reconnects:int=0) -> int:
         restart = num_of_reconnects
@@ -142,17 +169,14 @@ class Client:
 
 class Server:
     def __init__(self):
-        print('new server')
         self.list_of_connection = []
         self.list_of_observer = []
         self.name = socket.gethostname()
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s = None
     
-    def __del__(self):
-        print('gone server')
-
     def set_server_connection(self, TCP_IP:str=DEFAULT_IP, TCP_PORT:int=DEFAULT_PORT, attempt_to_reconnect:int=0) -> Union[int, Tuple[str, int]]:
         try:
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.bind((TCP_IP, TCP_PORT))
         except socket.error:
             print("Error: Failed to start server")
@@ -328,9 +352,14 @@ class Handler:
         if(event.src_path.endswith('.log')):
             print('Logfile Modified')
             filename = os.path.join('./archive', self.target_path, str(DATE))
-            zip_folder(filename, self.tot_path)
+            if zip_folder(filename, self.tot_path):
+                print('Error: ZIP failed')
+            else:
+                print('zipped')
+            
             self.server.broadcast_string('zip')
-            time.sleep(0.1)
+            time.sleep(0.5)
+            print('sending zip')
             self.server.broadcast_zip(os.path.join(
                 './archive', self.target_path, str(DATE) + '.zip'))
             print('done shipping')

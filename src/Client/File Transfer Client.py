@@ -1,10 +1,13 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from functools import partial
+import datetime
 import time
 import sys
 import os
 import threading
 
+rn = datetime.datetime.now
+SAVE_LOCATION = '..\\..\\save'
 reconnect_time = 3
 BUFFER_SIZE = 4096
 client = None
@@ -193,6 +196,7 @@ class Ui_frmClient(object):
 
     def menu_actions(self):
         self.actionAuto_Reconnect.triggered.connect(self.auto_reconnect)
+        self.actionSave_Directory.triggered.connect(self.change_save_location)
         # self.actionReset.triggered.connect(partial(self.reset_client, True))
 
     def auto_reconnect(self):
@@ -209,7 +213,16 @@ class Ui_frmClient(object):
         else:
             self.auto_reconn = False
 
+    def change_save_location(self):
+        dir_name = QtWidgets.QFileDialog.getExistingDirectory(
+            None, 'Select a Directory')
+        
+        if dir_name:
+            self.txtStatusUpdate.append('Save location changed to: ' + dir_name)
+
     def close_gui(self, e):
+        global client
+        client  = None
         return self.connection.end()
 
     def update_messages(self):
@@ -219,14 +232,17 @@ class Ui_frmClient(object):
             return 1
         for message in self.connection.get_messages():
             if message == 'RESET':
-                client = None
+                # client = None
+                # print('pausing thread')
+                self.connection.pause()
                 self.set_client_for_ui()
                 break
             self.txtStatusUpdate.append(message)
+        self.connection.set_messages()
         
     def set_client_for_ui(self):
         global client
-        self.txtStatusUpdate.append('Initializing client...')
+        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Initializing client...')
         try:
             input_ip = self.linInputIP.text()
             input_port = int(self.linPort.text())
@@ -234,13 +250,14 @@ class Ui_frmClient(object):
             self.txtStatusUpdate.append('Error: Bad Input')
             return 1
 
-        self.txtStatusUpdate.append('Attempting to connect to server')
-        self.txtStatusUpdate.append('Do not close window')
+        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Attempting to connect to server')
+        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Do not close window')
 
-        client = sw.Client()
-    
+        if not client:
+            client = sw.Client()
+
         if client.set_client_connection(input_ip, input_port, 3) == 1:
-            self.txtStatusUpdate.append('Error: Failed to start client')
+            self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Failed to start client')
             return 1
 
         client.send_string(client.get_client_name() + "///is online")
@@ -251,7 +268,7 @@ class Ui_frmClient(object):
         self.linInputIP.setDisabled(True)
         self.linPort.setDisabled(True)
         
-        self.txtStatusUpdate.append('Connected to server')
+        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Connected to server')
         self.connection.start()
 
 
@@ -290,31 +307,45 @@ class ConnectionThread(QtCore.QObject):
         return self.messages.clear()
 
     def communication_loop(self):
+        global client
         while self.RUN:
             while self.standby:
                 time.sleep(1)
+            # print(rn(), 'waiting for + ', client.s.getsockname())
             try:
                 op = client.recv(BUFFER_SIZE)
             except AttributeError:
                 return 1
-        
+            # print(op)
             if op == bytes('0', 'utf-8'):
+                # print('conn')
                 client.send_string(op, raw=True)
             elif op == bytes('zip', 'utf-8'):
-                self.messages.append('omg it is happending')
-                fp = open('./shipment.zip', 'wb')
+                print(op)
+                self.messages.append('FILE: Receiving ZIP')
+                self.sig.emit()
+                
+                ZIP_NAME = 'target.zip'
+
+                temp = os.path.join(SAVE_LOCATION, ZIP_NAME)
+                print(temp)
+                fp = open(temp, 'wb')
                 client.save_file(BUFFER_SIZE, fp)
-                self.messages.append('it happened')
+
+                self.messages.append('FILE: Finished transfer zip')
+                self.sig.emit()
+                fp.close()
             elif op == bytes('image', 'utf-8'):
-                fp = open('../save/shipment.img', 'wb')
+                fp = open('../save/shipment.jpg', 'wb')
                 # client.save_file(BUFFER_SIZE, fp)
+
             else:
                 print(op)
                 print('connection lost')
                 self.messages.append('Error: Lost connection to server')
                 self.messages.append('RESET')
                 self.sig.emit()
-                break
+                self.pause()
             
             self.sig.emit()
             time.sleep(0.5)
