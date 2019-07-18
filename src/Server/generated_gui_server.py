@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'File Transfer Server.ui'
+# Form implementation generated from reading ui file 'ZYNC_Server.ui'
 #
 # Created by: PyQt5 UI code generator 5.11.3
 #

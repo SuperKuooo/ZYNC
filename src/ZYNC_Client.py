@@ -5,6 +5,7 @@ import time
 import sys
 import os
 import threading
+import socket_wrapper as sw
 
 SAVE_LOCATION = '..\\..\\save'
 reconnect_time = 3
@@ -403,9 +404,6 @@ class ConnectionThread(QtCore.QObject):
 
 
 if __name__ == "__main__":
-    sys.path.append('..\\')
-    import lib.socket_wrapper as sw
-
     app = QtWidgets.QApplication(sys.argv)
     ClientTerminal = QtWidgets.QMainWindow()
     ui = Ui_frmClient(ClientTerminal)
