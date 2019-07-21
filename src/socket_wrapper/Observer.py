@@ -11,8 +11,10 @@ class Observer:
         self.target_path = target_path
         self.tot_path = os.path.join(lib_path, target_path)
         self.handler = Handler(server, lib_path, target_path)
-        # TODO: add a timing mode
-        # self.mode = True
+        # 0 is change based
+        # 1 is time based
+        # add more in you need
+        self.mode = 0
 
     def set_server(self, server: Server):
         self.server = server
@@ -20,6 +22,15 @@ class Observer:
 
     def get_target_path(self) -> str:
         return self.target_path
+
+    def get_mode(self) -> int:
+        return self.mode
+
+    def set_mode(self, mode: int):
+        if mode != 0 and mode != 1:
+            return 1
+        self.mode = mode
+        return 0
 
     def start_observe(self, recursive: bool = False) -> int:
         try:

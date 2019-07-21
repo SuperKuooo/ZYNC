@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ZYNC_Server.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -92,9 +92,9 @@ class Ui_frmServerTerminal(object):
         self.rdbTimed = QtWidgets.QRadioButton(self.gpbOptions)
         self.rdbTimed.setGeometry(QtCore.QRect(30, 20, 82, 17))
         self.rdbTimed.setObjectName("rdbTimed")
-        self.rdbChnaged = QtWidgets.QRadioButton(self.gpbOptions)
-        self.rdbChnaged.setGeometry(QtCore.QRect(140, 20, 101, 17))
-        self.rdbChnaged.setObjectName("rdbChnaged")
+        self.rdbChanged = QtWidgets.QRadioButton(self.gpbOptions)
+        self.rdbChanged.setGeometry(QtCore.QRect(140, 20, 101, 17))
+        self.rdbChanged.setObjectName("rdbChanged")
         self.spbxTimedSeconds = QtWidgets.QSpinBox(self.gpbOptions)
         self.spbxTimedSeconds.setGeometry(QtCore.QRect(31, 40, 71, 22))
         self.spbxTimedSeconds.setObjectName("spbxTimedSeconds")
@@ -128,7 +128,7 @@ class Ui_frmServerTerminal(object):
         self.horizontalLayout.addWidget(self.btnRemove)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
         self.layoutWidget2 = QtWidgets.QWidget(self.centralwidget)
-        self.layoutWidget2.setGeometry(QtCore.QRect(14, 42, 160, 229))
+        self.layoutWidget2.setGeometry(QtCore.QRect(14, 42, 166, 229))
         self.layoutWidget2.setObjectName("layoutWidget2")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget2)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -191,9 +191,12 @@ class Ui_frmServerTerminal(object):
         self.lblDetails.setObjectName("lblDetails")
         self.horizontalLayout_6.addWidget(self.lblDetails)
         self.horizontalLayout_7.addLayout(self.horizontalLayout_6)
+        self.btnConfirm = QtWidgets.QPushButton(self.centralwidget)
+        self.btnConfirm.setGeometry(QtCore.QRect(700, 10, 113, 32))
+        self.btnConfirm.setObjectName("btnConfirm")
         frmServerTerminal.setCentralWidget(self.centralwidget)
         self.mnuBar = QtWidgets.QMenuBar(frmServerTerminal)
-        self.mnuBar.setGeometry(QtCore.QRect(0, 0, 823, 21))
+        self.mnuBar.setGeometry(QtCore.QRect(0, 0, 823, 22))
         self.mnuBar.setObjectName("mnuBar")
         self.mnuFile = QtWidgets.QMenu(self.mnuBar)
         self.mnuFile.setObjectName("mnuFile")
@@ -243,7 +246,7 @@ class Ui_frmServerTerminal(object):
         self.linPort.setText(_translate("frmServerTerminal", "8000"))
         self.gpbOptions.setTitle(_translate("frmServerTerminal", "Trigger Options"))
         self.rdbTimed.setText(_translate("frmServerTerminal", "Time Based"))
-        self.rdbChnaged.setText(_translate("frmServerTerminal", "Change Based"))
+        self.rdbChanged.setText(_translate("frmServerTerminal", "Change Based"))
         self.btnBrowse.setText(_translate("frmServerTerminal", "BROWSE"))
         self.btnBrowse.setShortcut(_translate("frmServerTerminal", "."))
         self.btnRemove.setText(_translate("frmServerTerminal", "REMOVE"))
@@ -254,6 +257,7 @@ class Ui_frmServerTerminal(object):
         self.lblListOfConnection.setText(_translate("frmServerTerminal", "List of Connections"))
         self.lblTargetDirectories.setText(_translate("frmServerTerminal", "Target Directories"))
         self.lblDetails.setText(_translate("frmServerTerminal", "Item Details"))
+        self.btnConfirm.setText(_translate("frmServerTerminal", "CONFIRM"))
         self.mnuFile.setTitle(_translate("frmServerTerminal", "File"))
         self.menuSettings.setTitle(_translate("frmServerTerminal", "Settings"))
         self.actionHelp.setText(_translate("frmServerTerminal", "Help"))

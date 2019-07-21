@@ -56,5 +56,3 @@ def time_stamp(_type: int = 0, dates=True, microsecond=True) -> str:
         stamp = stamp.replace(microsecond=0)
 
     return str(stamp) + " " + temp
-
-

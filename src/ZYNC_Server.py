@@ -1,30 +1,31 @@
 import sys
-import os
-import threading
-import datetime
-import time
+import socket_wrapper as sw
+from QtThread_Helper import ServerConnection as sc
+from QtThread_Helper import GenericThread as gt
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 server = None
+current_row = None
 LIB_PATH = 'C:/Users/user/Documents/Unity_Build_Library'
-MAX_CONNECTION = 5
-BUFFER_SIZE = 4096
+sc.MAX_CONNECTION = 5
+sc.BUFFER_SIZE = 4096
 
 
-class Ui_frmServerTerminal(object):
-    def __init__(self, frmServerTerminal):
+class UiFrmServerTerminal(object):
+    def __init__(self, frm_server_terminal):
         # Declaring variables
-        self.connection = ConnectionThread()
+        self.connection = sc.ServerConnectionThread()
         self.connection.sig.connect(self.refresh_list_of_conn)
-        self.connection.init()
+        self.connection.init(server)
 
-        self.setupUi(frmServerTerminal)
+        self.setupUi(frm_server_terminal)
         # self.retranslateUi(frmServerTerminal)
-        self.other_settings(frmServerTerminal)
+        self.other_settings(frm_server_terminal)
         # QtCore.QMetaObject.connectSlotsByName(frmServerTerminal)
 
         # bind actions
-        self.clicked_binding(frmServerTerminal)
+        self.clicked_binding(frm_server_terminal)
         self.menu_actions()
 
     def setupUi(self, frmServerTerminal):
@@ -110,9 +111,9 @@ class Ui_frmServerTerminal(object):
         self.rdbTimed = QtWidgets.QRadioButton(self.gpbOptions)
         self.rdbTimed.setGeometry(QtCore.QRect(30, 20, 82, 17))
         self.rdbTimed.setObjectName("rdbTimed")
-        self.rdbChnaged = QtWidgets.QRadioButton(self.gpbOptions)
-        self.rdbChnaged.setGeometry(QtCore.QRect(140, 20, 101, 17))
-        self.rdbChnaged.setObjectName("rdbChnaged")
+        self.rdbChanged = QtWidgets.QRadioButton(self.gpbOptions)
+        self.rdbChanged.setGeometry(QtCore.QRect(140, 20, 101, 17))
+        self.rdbChanged.setObjectName("rdbChanged")
         self.spbxTimedSeconds = QtWidgets.QSpinBox(self.gpbOptions)
         self.spbxTimedSeconds.setGeometry(QtCore.QRect(31, 40, 71, 22))
         self.spbxTimedSeconds.setObjectName("spbxTimedSeconds")
@@ -146,7 +147,7 @@ class Ui_frmServerTerminal(object):
         self.horizontalLayout.addWidget(self.btnRemove)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
         self.layoutWidget2 = QtWidgets.QWidget(self.centralwidget)
-        self.layoutWidget2.setGeometry(QtCore.QRect(14, 42, 160, 229))
+        self.layoutWidget2.setGeometry(QtCore.QRect(14, 42, 166, 229))
         self.layoutWidget2.setObjectName("layoutWidget2")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget2)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -209,9 +210,12 @@ class Ui_frmServerTerminal(object):
         self.lblDetails.setObjectName("lblDetails")
         self.horizontalLayout_6.addWidget(self.lblDetails)
         self.horizontalLayout_7.addLayout(self.horizontalLayout_6)
+        self.btnConfirm = QtWidgets.QPushButton(self.centralwidget)
+        self.btnConfirm.setGeometry(QtCore.QRect(700, 10, 113, 32))
+        self.btnConfirm.setObjectName("btnConfirm")
         frmServerTerminal.setCentralWidget(self.centralwidget)
         self.mnuBar = QtWidgets.QMenuBar(frmServerTerminal)
-        self.mnuBar.setGeometry(QtCore.QRect(0, 0, 823, 21))
+        self.mnuBar.setGeometry(QtCore.QRect(0, 0, 823, 22))
         self.mnuBar.setObjectName("mnuBar")
         self.mnuFile = QtWidgets.QMenu(self.mnuBar)
         self.mnuFile.setObjectName("mnuFile")
@@ -261,7 +265,7 @@ class Ui_frmServerTerminal(object):
         self.linPort.setText(_translate("frmServerTerminal", "8000"))
         self.gpbOptions.setTitle(_translate("frmServerTerminal", "Trigger Options"))
         self.rdbTimed.setText(_translate("frmServerTerminal", "Time Based"))
-        self.rdbChnaged.setText(_translate("frmServerTerminal", "Change Based"))
+        self.rdbChanged.setText(_translate("frmServerTerminal", "Change Based"))
         self.btnBrowse.setText(_translate("frmServerTerminal", "BROWSE"))
         self.btnBrowse.setShortcut(_translate("frmServerTerminal", "."))
         self.btnRemove.setText(_translate("frmServerTerminal", "REMOVE"))
@@ -272,6 +276,7 @@ class Ui_frmServerTerminal(object):
         self.lblListOfConnection.setText(_translate("frmServerTerminal", "List of Connections"))
         self.lblTargetDirectories.setText(_translate("frmServerTerminal", "Target Directories"))
         self.lblDetails.setText(_translate("frmServerTerminal", "Item Details"))
+        self.btnConfirm.setText(_translate("frmServerTerminal", "CONFIRM"))
         self.mnuFile.setTitle(_translate("frmServerTerminal", "File"))
         self.menuSettings.setTitle(_translate("frmServerTerminal", "Settings"))
         self.actionHelp.setText(_translate("frmServerTerminal", "Help"))
@@ -284,16 +289,16 @@ class Ui_frmServerTerminal(object):
         self.actionBase_Path.setText(_translate("frmServerTerminal", "Base Path"))
         self.actionSave_Log.setText(_translate("frmServerTerminal", "Save Log"))
 
-    # For settigns I can't find in pyqt GUI lmao
-    def other_settings(self, frmServerTerminal):
-        frmServerTerminal.setFixedSize(823, 464)
+    # For settigns I can't find in pyqt GUI designer lmao
+    def other_settings(self, frm_server_terminal):
+        frm_server_terminal.setFixedSize(823, 464)
 
     def menu_actions(self):
         self.actionClear_Log.triggered.connect(self.menu_clear_log)
-        self.actionBase_Path.triggered.connect(self.menu_Base_Path)
+        self.actionBase_Path.triggered.connect(self.menu_base_path)
 
-    def clicked_binding(self, frmServerTerminal):
-        frmServerTerminal.closeEvent = self.close_gui
+    def clicked_binding(self, frm_server_terminal):
+        frm_server_terminal.closeEvent = self.close_gui
         self.btnStartServer.clicked.connect(self.set_server_for_ui)
         self.btnBrowse.clicked.connect(self.browse_directory)
         self.btnRemove.clicked.connect(self.remove_directory)
@@ -301,30 +306,48 @@ class Ui_frmServerTerminal(object):
         self.btnKick.clicked.connect(self.kick_connection)
         self.lstTargetDirs.clicked.connect(self.directory_details)
         self.lstListOfConn.clicked.connect(self.conn_details)
+        self.rdbChanged.toggled.connect(self.change_detection_method)
 
     def close_gui(self, e):
         self.connection.end()
 
+    def change_detection_method(self):
+        global current_row
+        observer = server.get_list_of_observer(current_row)
+
+        # 0 is change based, 1 is time based
+        if observer.get_mode() == 0:
+            observer.set_mode(1)
+            self.spbxTimedSeconds.setDisabled(True)
+
+        elif observer.get_mode() == 1:
+            observer.set_mode(0)
+            self.spbxTimedSeconds.setDisabled(False)
+        else:
+            print('Error: Not implemented yet')
+
+        return 0
+
     def directory_details(self):
-        row = self.lstTargetDirs.currentRow()
+        global current_row
+        current_row = self.lstTargetDirs.currentRow()
         self.txtDetails.clear()
-        handler = server.get_list_of_observer(row).handler
-        details = handler.get_details()
+        observer = server.get_list_of_observer(current_row)
+        mode = observer.get_mode()
+        details = observer.handler.get_details()
+        self.gpbOptions.setDisabled(False)
+        if mode == 0:
+            self.rdbChanged.toggle()
+        elif mode == 1:
+            self.rdbTimed.toggle()
         self.txtDetails.append('{:25s}{}'.format('Track Mode:', 'Changes'))
         self.txtDetails.append('{:25s}{}'.format('Last Success:', details[0]))
         self.txtDetails.append('{:25s}{}'.format('Last Attempt:', details[1]))
         self.txtDetails.append('{:25s}{}'.format('Total Attempts:', details[2]))
         self.txtDetails.append('{:25s}{}'.format('Archive Directory:', details[3]))
 
-
-
-
-        # print(row)
-        # print('eh')
-
     def conn_details(self):
-        row = self.lstListOfConn.currentRow()
-        # print(row)
+        pass
 
     def kick_connection(self):
         row = self.lstListOfConn.currentRow()
@@ -334,23 +357,16 @@ class Ui_frmServerTerminal(object):
 
     def remove_directory(self):
         row = self.lstTargetDirs.currentRow()
-        # print(row)
         if row < 0:
             return 1
         item = self.lstTargetDirs.takeItem(row)
-        server.set_list_of_observer(sw.Client(), 2, row)
+        server.set_list_of_observer(operation=2, index=row)
         self.txtStatusUpdate.append('Deleted ' + item.text())
         del item
         return 0
 
-    def add_connection(self, addr):
-        row = self.lstListOfConn.currentRow()
-        self.refresh_list_of_conn()
-        self.txtStatusUpdate.append("Connection Address:" + str(addr) +
-                                    " " + str(datetime.datetime.now()))
-
     def browse_directory(self):
-        # global server
+        global server
         if not server:
             self.txtStatusUpdate.append(
                 "Error: No server set yet. Please set a server before adding a directory.")
@@ -389,7 +405,7 @@ class Ui_frmServerTerminal(object):
         self.linInputIP.setDisabled(True)
         self.linPort.setDisabled(True)
 
-    def menu_Base_Path(self):
+    def menu_base_path(self):
         global LIB_PATH
 
         temp = QtWidgets.QInputDialog.getText(
@@ -402,7 +418,7 @@ class Ui_frmServerTerminal(object):
                 'Note: Failed to change base directory')
 
     def menu_clear_log(self):
-        self.txtStatusUpdate.clear()
+        return self.txtStatusUpdate.clear()
 
     def refresh_directory(self):
         self.lstTargetDirs.clear()
@@ -426,77 +442,11 @@ class Ui_frmServerTerminal(object):
             self.lstListOfConn.insertItem(row, val)
         return 0
 
-       # self.txtStatusUpdate.append(
-        #    'Number of Connections: {}'.format(server.get_num_of_connection()))
-
-
-class ConnectionThread(QtCore.QObject):
-    sig = QtCore.pyqtSignal()
-    RUN = False
-    standby = True
-
-    def init(self):
-        self.connection_loop = threading.Thread(
-            target=self.connection_loop, name='connection_loop')
-        self.alive_message_loop = threading.Thread(
-            target=self.alive_message_loop, name='alive_message_loop')
-        self.RUN = True
-
-        self.connection_loop.start()
-        self.alive_message_loop.start()
-
-    def start(self):
-        self.RUN = True
-        self.standby = False
-
-    def pause(self):
-        self.RUN = True
-        self.standby = True
-
-    def end(self):
-        global server
-        if server:
-            server.close()
-        server = None
-        self.RUN = False
-        self.standby = False
-        self.connection_loop.join()
-        self.alive_message_loop.join()
-
-    def connection_loop(self):
-        while self.RUN:
-            while self.standby:
-                time.sleep(1)
-            conn, addr = None, None
-            try:
-                server.listen(MAX_CONNECTION)
-                conn, addr = server.accept()
-            except OSError:
-                return 1  # Terminating the server
-            server.echo_connection(conn, conn.recv(BUFFER_SIZE))
-            self.sig.emit()
-        return 0
-
-    def alive_message_loop(self):
-        while self.RUN:
-            while self.standby:
-                time.sleep(1)
-            if not server.get_list_of_connection():
-                continue
-            if sw.check_connection(server.get_list_of_connection()):
-                self.sig.emit()
-
-            time.sleep(0.5)
-        return 0
-
 
 if __name__ == "__main__":
-    sys.path.append('..//')
-    import lib.socket_wrapper as sw
-
     app = QtWidgets.QApplication(sys.argv)
     ServerTerminal = QtWidgets.QMainWindow()
-    ui = Ui_frmServerTerminal(ServerTerminal)
+    ui = UiFrmServerTerminal(ServerTerminal)
     ServerTerminal.show()
 
     app.exec_()
