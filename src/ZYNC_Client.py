@@ -3,10 +3,7 @@ import sys
 import socket_wrapper as sw
 from Qt_thread_aux import ClientConnection as cc
 
-SAVE_LOCATION = '..\\..\\save'
-BUFFER_SIZE = 4096
 client = sw.Client()
-
 
 class Ui_frmClient(object):
     def __init__(self, frmClientTerminal):
@@ -177,7 +174,7 @@ class Ui_frmClient(object):
         self.btnStartClient.setText(_translate("frmClientTerminal", "START"))
         self.lblInputIP.setText(_translate("frmClientTerminal", "IP Address"))
         self.linInputIP.setText(_translate(
-            "frmClientTerminal", "10.59.1.200"))
+            "frmClientTerminal", "192.168.1.118"))
         self.lblPort.setText(_translate("frmClientTerminal", "Port Number"))
         self.linPort.setText(_translate("frmClientTerminal", "8000"))
         self.lblStatusLog.setText(_translate(
@@ -250,7 +247,8 @@ class Ui_frmClient(object):
                 self.btnStartClient.setText(splt_message[1])
                 continue
             elif splt_message[0] == 'FILE':
-                # TODO: Find the right name for splt message
+                # TODO(Jerry): July 22, 2019
+                # Find the right name for splt message
                 row = self.lstTransferredFiles.currentRow()
                 self.lstTransferredFiles.insertItem(row, splt_message[1])
 
@@ -258,13 +256,14 @@ class Ui_frmClient(object):
         self.connection.set_messages()
 
     def set_client_for_ui(self):
-        global client, input_ip, input_port
+        global client
 
         self.txtStatusUpdate.append(sw.time_stamp(
             dates=False) + 'Initializing client...')
         try:
             input_ip = self.linInputIP.text()
             input_port = int(self.linPort.text())
+            self.connection.set_ip_port(input_ip, input_port)
         except ValueError:
             self.txtStatusUpdate.append(
                 sw.time_stamp(dates=False) + 'Error: Bad Input')
@@ -281,6 +280,7 @@ class Ui_frmClient(object):
         self.linPort.setDisabled(True)
 
         self.connection.start_connection()
+        self.connection.resume_connection()
 
 
 if __name__ == "__main__":

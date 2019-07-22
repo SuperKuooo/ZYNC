@@ -6,7 +6,6 @@
 # ========================================
 
 import socket
-
 import time
 
 
@@ -27,9 +26,11 @@ class Client:
         self.name = socket.gethostname()
         self.s = conn
 
-    def set_client_connection(
-            self, input_ip: str, input_port: int, time_to_reconnect: int = 0, num_of_reconnects: int = 0
-    ) -> int:
+    def set_client_connection(self,
+                              input_ip: str,
+                              input_port: int,
+                              time_to_reconnect: int = 0,
+                              num_of_reconnects: int = 0) -> int:
         """ Connects the client socket to specific address and port
 
         :param input_ip: the target ip
@@ -39,6 +40,8 @@ class Client:
         :return: returns 1 if ran out of tries to reconnect
                  returns 0 if no error
         """
+        # TODO(Jerry): July 22, 2019
+        #  Change where reconnecting statement is printing
         restart = num_of_reconnects
 
         if not num_of_reconnects:
@@ -77,14 +80,15 @@ class Client:
         if not message:
             # Sets default message if not specified
             message = self.name + '///is online'
+            
         self.s.settimeout(5)
         data = self.s.recv(4096).decode('utf-8')
 
         if data != message:
             # Compares the outgoing and incoming messages
-            print(message)
-            print(data)
-            raise UserWarning('Error: different echo value')
+            print(message) # Outgoing
+            print(data)    # Incoming
+            raise UserWarning('Error: Different echo value')
         return 0
 
     def recv(self, buffer_size: int, timeout: int = 2):
@@ -97,9 +101,9 @@ class Client:
         """
         try:
             self.s.settimeout(timeout)
+            return self.s.recv(buffer_size)
         except socket.error:
             return 1
-        return self.s.recv(buffer_size)
 
     def send_string(self, message, raw: bool = False) -> int:
         """ sends a string from client to server
@@ -167,6 +171,7 @@ class Client:
         :param buffer: the buffer size for each receive
         :param file_pointer: where to save the incoming data
         :return: returns 1 if the file pointer is invalid
+                 returns 2 if failed to receive zip
                  returns 0 if no error
         """
         try:
@@ -177,6 +182,8 @@ class Client:
                 file_pointer.write(data)
         except FileNotFoundError:
             return 1
+        except socket.error:
+            return 2
         return 0
 
     def close(self) -> int:

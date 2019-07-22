@@ -256,7 +256,7 @@ class UiFrmServerTerminal(object):
         self.btnStartServer.setText(_translate("frmServerTerminal", "START"))
         self.btnStartServer.setShortcut(_translate("frmServerTerminal", "Enter"))
         self.lblInputIP.setText(_translate("frmServerTerminal", "IP Address"))
-        self.linInputIP.setText(_translate("frmServerTerminal", "10.59.1.200"))
+        self.linInputIP.setText(_translate("frmServerTerminal", "192.168.1.118"))
         self.lblPort.setText(_translate("frmServerTerminal", "Port Number"))
         self.linPort.setText(_translate("frmServerTerminal", "8000"))
         self.gpbOptions.setTitle(_translate("frmServerTerminal", "Trigger Options"))

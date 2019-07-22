@@ -22,9 +22,12 @@ def zip_folder(output: str, target: str) -> int:
     :return: Return 1 if zip error. Else return 0
     """
     try:
+        print('zipping target')
         shutil.make_archive(output, "zip", target)
     except shutil.Error:
+        print('failed')
         return 1
+    print('zipped')
     return 0
 
 

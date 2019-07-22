@@ -57,6 +57,8 @@ class ServerConnectionThread(QtCore.QObject):
             if self.run and not self.standby:
                 self.server.listen(self.max_connection)
                 conn, addr = self.server.accept()
+                if conn == addr and conn == 1:
+                    continue
                 self.server.echo_connection(conn, conn.recv(self.buffer_size))
                 self.sig.emit()
         return 0

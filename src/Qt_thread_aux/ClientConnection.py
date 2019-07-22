@@ -1,25 +1,27 @@
-from PyQt5 import QtCore
 import threading
 import os
-from socket_wrapper.utils import *
+import time
+
+from PyQt5 import QtCore
+from socket_wrapper.utils import time_stamp
 
 
 class ClientConnectionThread(QtCore.QObject):
     sig = QtCore.pyqtSignal()
 
-    def __init__(self, client, input_ip=None, input_port=None, buffer_size=4096, reconnect_time=3):
+    def __init__(self, client, input_ip=None, input_port=None):
         # Initializing Vairables
         super(ClientConnectionThread, self).__init__()
         self.client = client
         self.messages = []
-        self.SAVE_LOCATION = '..\\..\\save'
+        self.SAVE_LOCATION = '..\\save'
         self.run = False
         self.com_standby = True
         self.con_standby = True
-        self.buffer_size = buffer_size
+        self.buffer_size = 4096
         self.input_ip = input_ip
         self.input_port = input_port
-        self.reconnect_time = reconnect_time
+        self.reconnect_time = 3
 
         # Initializing threads
         self.communication = threading.Thread(target=self.communication_loop, name='communication_loop')
@@ -28,12 +30,14 @@ class ClientConnectionThread(QtCore.QObject):
     def start_communication(self):
         self.run = True
         self.com_standby = True
-        self.communication.start()
+        if not self.communication.isAlive():
+            self.communication.start()
 
     def start_connection(self):
         self.run = True
         self.con_standby = True
-        self.connection.start()
+        if not self.connection.isAlive():
+            self.connection.start()
 
     def resume_communication(self):
         self.run = True
@@ -55,9 +59,13 @@ class ClientConnectionThread(QtCore.QObject):
         self.run = False
         self.con_standby = False
         self.com_standby = False
-        self.communication.join()
-        self.connection.join()
-
+        try:
+            self.communication.join()
+            self.connection.join()
+        except RuntimeError:
+            return 1
+        return 0
+        
     def get_messages(self):
         return self.messages
 
@@ -68,12 +76,23 @@ class ClientConnectionThread(QtCore.QObject):
         self.input_ip = ip
         self.input_port = port
 
+    def set_reconnect_time(self, _time):
+        self.reconnect_time = _time
+
+    def set_buffer_size(self, size):
+        self.buffer_size = size
+
     def communication_loop(self):
         while self.run:
             while self.com_standby:
                 time.sleep(1)
+
+            # TODO(Jerry): July 22, 2019
+            #  Bug: After receiving zip, client disconnects without reason
+            #  but is able to reconnect on its own.
+            #  Reason: after receiving from zip, op still has some left over data?
             try:
-                op = self.client.recv(BUFFER_SIZE)
+                op = self.client.recv(self.buffer_size)
             except AttributeError:
                 return 1
             if op == bytes('0', 'utf-8'):
@@ -86,23 +105,24 @@ class ClientConnectionThread(QtCore.QObject):
 
                 temp = os.path.join(self.SAVE_LOCATION, ZIP_NAME)
                 fp = open(temp, 'wb')
-                self.client.save_file(BUFFER_SIZE, fp)
-
-                self.messages.append('FILE: Finished transfer zip')
+                if self.client.save_file(self.buffer_size, fp):
+                    self.messages.append('Error: Failed to open location')
+                else:
+                    self.messages.append('FILE: Finished transfer zip')
+                self.messages.append('FILE: DONE!!')
                 self.sig.emit()
                 fp.close()
 
             elif op == bytes('image', 'utf-8'):
                 fp = open('../save/shipment.jpg', 'wb')
-                self.client.save_file(BUFFER_SIZE, fp)
+                self.client.save_file(self.buffer_size, fp)
 
-            else:
+            elif  op == 1:
                 print('Connection Lost')
                 self.messages.append('Error: Lost connection to server')
                 self.messages.append('RESET')
                 self.sig.emit()
                 self.pause_communication()
-
             self.sig.emit()
             time.sleep(0.5)
 
@@ -116,17 +136,18 @@ class ClientConnectionThread(QtCore.QObject):
                         dates=False) + 'Failed to start client')
                     self.sig.emit()
                     return 1
-                else:
-                    self.client.send_string(
-                        self.client.get_client_name() + "///is online")
-                    self.client.confirm_connection()
 
-                    self.messages.append('BUTTON Connected')
-                    self.messages.append(time_stamp(
-                        dates=False) + 'Connected to server')
+                self.client.send_string(
+                    self.client.get_client_name() + "///is online")
+                self.client.confirm_connection()
 
-                    self.start_communication()
-                    self.resume_communication()
-                    self.sig.emit()
+                self.messages.append('BUTTON Connected')
+                self.messages.append(time_stamp(
+                    dates=False) + 'Connected to server')
+
+                self.start_communication()
+                self.resume_communication()
+                self.pause_connection()
+                self.sig.emit()
             except AttributeError:
                 return 1  # Force thread to end

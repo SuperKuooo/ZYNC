@@ -4,19 +4,17 @@
 #
 # Designed for Antiloop Studio. July 2019
 # ========================================
-from watchdog.observers import Observer as Obs
-
-from .server import *
 
 import datetime
-
+import time
 import os
 
+from watchdog.observers import Observer as Obs
+from .server import *
 
 # TODO(Jerry): July 22, 2019
 #  Re-examine the observer/handler structure
 #  Need it for time changes
-
 class Observer:
     """ Instance that watches the changes of a directory
 
@@ -165,10 +163,10 @@ class Handler:
             if event.src_path.endswith('.log'):
                 print('Logfile Modified')
                 filename = os.path.join('./archive', self.target_path, str(datetime.date.today()))
+                
                 if zip_folder(filename, self.tot_path):
                     print('Error: ZIP failed')
-                else:
-                    print('zipped')
+                print('zipped')
 
                 self.server.broadcast_string('zip')
                 time.sleep(0.5)

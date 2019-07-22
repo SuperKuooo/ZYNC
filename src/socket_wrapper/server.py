@@ -247,11 +247,16 @@ class Server:
         :param size: number of queue
         :return: whatever self.s.listen returns lol
         """
-        return self.s.listen(size)
-
+        try:
+            return self.s.listen(size)
+        except socket.error:
+            return 1
     def accept(self):
         """ Accepts the connection
 
         :return: whatever self.s.accept returns lol
         """
-        return self.s.accept()
+        try:
+            return self.s.accept()
+        except socket.error:
+            return 1, 1
