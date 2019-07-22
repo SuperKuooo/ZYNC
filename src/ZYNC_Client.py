@@ -1,28 +1,19 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from functools import partial
-import datetime
-import time
 import sys
-import os
-import threading
 import socket_wrapper as sw
-from QtThread_Helper import ClientConnection as cc
+from Qt_thread_aux import ClientConnection as cc
 
 SAVE_LOCATION = '..\\..\\save'
 BUFFER_SIZE = 4096
-client = None
-cc.input_ip = None
-cc.input_port = None
-cc.reconnect_time = 3
+client = sw.Client()
 
 
 class Ui_frmClient(object):
     def __init__(self, frmClientTerminal):
         self.auto_reconn = True
 
-        self.connection = cc.ClientConnectionThread()
+        self.connection = cc.ClientConnectionThread(client)
         self.connection.sig.connect(self.update_messages)
-        self.connection.init()
 
         self.setupUi(frmClientTerminal)
         self.retranslateUi(frmClientTerminal)
@@ -186,7 +177,7 @@ class Ui_frmClient(object):
         self.btnStartClient.setText(_translate("frmClientTerminal", "START"))
         self.lblInputIP.setText(_translate("frmClientTerminal", "IP Address"))
         self.linInputIP.setText(_translate(
-            "frmClientTerminal", "192.168.1.118"))
+            "frmClientTerminal", "10.59.1.200"))
         self.lblPort.setText(_translate("frmClientTerminal", "Port Number"))
         self.linPort.setText(_translate("frmClientTerminal", "8000"))
         self.lblStatusLog.setText(_translate(
@@ -258,6 +249,10 @@ class Ui_frmClient(object):
             elif splt_message[0] == 'BUTTON':
                 self.btnStartClient.setText(splt_message[1])
                 continue
+            elif splt_message[0] == 'FILE':
+                # TODO: Find the right name for splt message
+                row = self.lstTransferredFiles.currentRow()
+                self.lstTransferredFiles.insertItem(row, splt_message[1])
 
             self.txtStatusUpdate.append(message)
         self.connection.set_messages()
@@ -279,9 +274,6 @@ class Ui_frmClient(object):
             dates=False) + 'Attempting to connect to server')
         self.txtStatusUpdate.append(sw.time_stamp(
             dates=False) + 'Do not close window')
-
-        if not client:
-            client = sw.Client()
 
         self.btnStartClient.setDisabled(True)
         self.btnStartClient.setText('Connecting')

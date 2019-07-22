@@ -30,18 +30,20 @@ class GenericThread(QtCore.QObject):
         while self.run:
             while self.standby:
                 time.sleep(self.sleep)
-            if self.run == self.standby is False:
+            if self.run and not self.standby:
                 break
             self.callback(*argv)
-            # self.sig.emit()
+            self.sig.emit()
             time.sleep(self.refresh_rate)
         return 0
 
     # Starting Thread, puts thread on standby
     def start(self):
-        self.run = True
-        self.standby = False
-        self.main_thread.start()
+        self.pause()
+        try:
+            self.main_thread.start()
+        except RuntimeError:
+            return 1
         return 0
 
     # Resumes the thread from standby

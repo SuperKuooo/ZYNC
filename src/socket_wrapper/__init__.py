@@ -1,6 +1,6 @@
-from .Client import *
-from .Server import *
-from .Observer import *
-from .Utils import *
+from .client import *
+from .server import *
+from .observer import *
+from .utils import *
 
-__all__ = ["Client", "Server", "Observer", "Utils"]
+__all__ = ["Client", "Server", "Observer", "utils.py"]

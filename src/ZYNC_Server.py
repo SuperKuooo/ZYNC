@@ -1,23 +1,19 @@
 import sys
 import socket_wrapper as sw
-from QtThread_Helper import ServerConnection as sc
-from QtThread_Helper import GenericThread as gt
+from Qt_thread_aux.ServerConnection import ServerConnectionThread
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
-server = None
+server = sw.Server()
 current_row = None
 LIB_PATH = 'C:/Users/user/Documents/Unity_Build_Library'
-sc.MAX_CONNECTION = 5
-sc.BUFFER_SIZE = 4096
 
 
 class UiFrmServerTerminal(object):
     def __init__(self, frm_server_terminal):
         # Declaring variables
-        self.connection = sc.ServerConnectionThread()
-        self.connection.sig.connect(self.refresh_list_of_conn)
-        self.connection.init(server)
+        self.connection = ServerConnectionThread(server)
+        self.connection.set_sig(self.refresh_list_of_conn)
+        self.connection.start()
 
         self.setupUi(frm_server_terminal)
         # self.retranslateUi(frmServerTerminal)
@@ -260,7 +256,7 @@ class UiFrmServerTerminal(object):
         self.btnStartServer.setText(_translate("frmServerTerminal", "START"))
         self.btnStartServer.setShortcut(_translate("frmServerTerminal", "Enter"))
         self.lblInputIP.setText(_translate("frmServerTerminal", "IP Address"))
-        self.linInputIP.setText(_translate("frmServerTerminal", "192.168.1.118"))
+        self.linInputIP.setText(_translate("frmServerTerminal", "10.59.1.200"))
         self.lblPort.setText(_translate("frmServerTerminal", "Port Number"))
         self.linPort.setText(_translate("frmServerTerminal", "8000"))
         self.gpbOptions.setTitle(_translate("frmServerTerminal", "Trigger Options"))
@@ -289,28 +285,73 @@ class UiFrmServerTerminal(object):
         self.actionBase_Path.setText(_translate("frmServerTerminal", "Base Path"))
         self.actionSave_Log.setText(_translate("frmServerTerminal", "Save Log"))
 
-    # For settigns I can't find in pyqt GUI designer lmao
+    # For settings that I can't find in PyQt GUI designer
     def other_settings(self, frm_server_terminal):
         frm_server_terminal.setFixedSize(823, 464)
 
     def menu_actions(self):
         self.actionClear_Log.triggered.connect(self.menu_clear_log)
         self.actionBase_Path.triggered.connect(self.menu_base_path)
+        self.actionClose.triggered.connect(self.exit)
+        self.actionHelp.triggered.connect(self.help_menu)
+        self.actionSave_Log.triggered.connect(self.save_log)
 
     def clicked_binding(self, frm_server_terminal):
+        # Form
         frm_server_terminal.closeEvent = self.close_gui
+
+        # Buttons
         self.btnStartServer.clicked.connect(self.set_server_for_ui)
         self.btnBrowse.clicked.connect(self.browse_directory)
         self.btnRemove.clicked.connect(self.remove_directory)
         self.btnRefresh.clicked.connect(self.refresh_list_of_conn)
         self.btnKick.clicked.connect(self.kick_connection)
+        self.btnConfirm.clicked.connect(self.confirm_detection_method)
+
+        # Lists
         self.lstTargetDirs.clicked.connect(self.directory_details)
         self.lstListOfConn.clicked.connect(self.conn_details)
+
+        # Radio Buttons
         self.rdbChanged.toggled.connect(self.change_detection_method)
 
+    def save_log(self):
+        # TODO(Jerry): Add feature
+        print('Save Log')
+        print('I have not implemented the help menu yet lmao')
+        print('Go on github to ask questions. Sorry. :P')
+        print('Or you could email me at jerrykuo820@gmail.com')
+        print('I will try to update this as I go along')
+        print('~~~~~~~~~~~')
+
+    def help_menu(self):
+        # TODO(Jerry): Add feature
+        print('Help Menu')
+        print('I have not implemented the help menu yet lmao')
+        print('Go on github to ask questions. Sorry. :P')
+        print('Or you could email me at jerrykuo820@gmail.com')
+        print('I will try to update this as I go along')
+        print('~~~~~~~~~~~')
+
+    def exit(self):
+        self.close_gui(self, )
+        sys.exit(0)
+
     def close_gui(self, e):
+        server.close()
         self.connection.end()
 
+    def confirm_detection_method(self):
+        global current_row
+        observer = server.get_list_of_observer(current_row)
+        if observer.get_mode() == 0:
+            observer.resume()
+
+        self.gpbOptions.setDisabled(True)
+        self.btnConfirm.setDisabled(True)
+
+    # This require tremendous amount of effort to do actually. Because of how I designed it.
+    # TODO: Big feature. Not yet implemented.
     def change_detection_method(self):
         global current_row
         observer = server.get_list_of_observer(current_row)
@@ -325,7 +366,6 @@ class UiFrmServerTerminal(object):
             self.spbxTimedSeconds.setDisabled(False)
         else:
             print('Error: Not implemented yet')
-
         return 0
 
     def directory_details(self):
@@ -336,6 +376,7 @@ class UiFrmServerTerminal(object):
         mode = observer.get_mode()
         details = observer.handler.get_details()
         self.gpbOptions.setDisabled(False)
+        self.btnConfirm.setDisabled(False)
         if mode == 0:
             self.rdbChanged.toggle()
         elif mode == 1:
@@ -346,10 +387,12 @@ class UiFrmServerTerminal(object):
         self.txtDetails.append('{:25s}{}'.format('Total Attempts:', details[2]))
         self.txtDetails.append('{:25s}{}'.format('Archive Directory:', details[3]))
 
+    # TODO: Show connection details
     def conn_details(self):
         pass
 
     def kick_connection(self):
+        # TODO: need to take a look at this. Cannot kick right now
         row = self.lstListOfConn.currentRow()
         server.set_list_of_connection(operation=2, index=row)
         self.refresh_list_of_conn()
@@ -392,18 +435,18 @@ class UiFrmServerTerminal(object):
             self.txtStatusUpdate.append('Error: Bad Input')
             return
 
-        server = sw.Server()
         if server.set_server_connection(input_ip, input_port, 3) == 1:
             self.txtStatusUpdate.append("Error: Failed to start server")
             return 1
 
         self.txtStatusUpdate.append(
             "Server set at IP: " + str(input_ip) + " Port: " + str(input_port))
-        self.connection.start()
         self.btnStartServer.setDisabled(True)
         self.btnStartServer.setText('SERVER ON')
         self.linInputIP.setDisabled(True)
         self.linPort.setDisabled(True)
+
+        self.connection.resume()
 
     def menu_base_path(self):
         global LIB_PATH
@@ -415,7 +458,7 @@ class UiFrmServerTerminal(object):
             LIB_PATH = temp
         else:
             self.txtStatusUpdate.append(
-                'Note: Failed to change base directory')
+                'Error: Failed to change base directory')
 
     def menu_clear_log(self):
         return self.txtStatusUpdate.clear()
@@ -431,7 +474,7 @@ class UiFrmServerTerminal(object):
             'Number of Directories: {}'.format(server.get_num_of_observer()))
         return 0
 
-    def refresh_list_of_conn(self, ):
+    def refresh_list_of_conn(self):
         self.lstListOfConn.clear()
         if not server or not server.get_list_of_connection():
             return 1
