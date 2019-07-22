@@ -105,11 +105,13 @@ class ClientConnectionThread(QtCore.QObject):
 
                 temp = os.path.join(self.SAVE_LOCATION, ZIP_NAME)
                 fp = open(temp, 'wb')
-                if self.client.save_file(self.buffer_size, fp):
+                retval = self.client.save_file(self.buffer_size, fp)
+                if retval == 1:
                     self.messages.append('Error: Failed to open location')
+                elif retval == 2:
+                    self.messages.append('Error: Failed to receive file')
                 else:
                     self.messages.append('FILE: Finished transfer zip')
-                self.messages.append('FILE: DONE!!')
                 self.sig.emit()
                 fp.close()
 
@@ -117,12 +119,13 @@ class ClientConnectionThread(QtCore.QObject):
                 fp = open('../save/shipment.jpg', 'wb')
                 self.client.save_file(self.buffer_size, fp)
 
-            elif  op == 1:
+            else :
                 print('Connection Lost')
                 self.messages.append('Error: Lost connection to server')
                 self.messages.append('RESET')
                 self.sig.emit()
                 self.pause_communication()
+
             self.sig.emit()
             time.sleep(0.5)
 

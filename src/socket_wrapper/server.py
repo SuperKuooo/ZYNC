@@ -223,6 +223,8 @@ class Server:
         for conn in target_audience:
             try:
                 with open(location, 'rb') as fp:
+                    if not fp:
+                        return 1
                     conn.sendall(fp.read())
             except socket.error:
                 return 1

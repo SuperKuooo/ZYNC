@@ -170,12 +170,13 @@ class Client:
 
         :param buffer: the buffer size for each receive
         :param file_pointer: where to save the incoming data
-        :return: returns 1 if the file pointer is invalid
-                 returns 2 if failed to receive zip
-                 returns 0 if no error
+        :return: returns 1
         """
         try:
+            i = 0
             while True:
+                i +=1
+                self.s.settimeout(5)
                 data = self.s.recv(buffer)
                 if not data:
                     break
@@ -183,9 +184,9 @@ class Client:
         except FileNotFoundError:
             return 1
         except socket.error:
-            return 2
+            return 0
         return 0
-
+        
     def close(self) -> int:
         """ Closes the client socket
 

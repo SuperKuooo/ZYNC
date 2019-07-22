@@ -162,18 +162,20 @@ class Handler:
         if not self.pause:
             if event.src_path.endswith('.log'):
                 print('Logfile Modified')
-                filename = os.path.join('./archive', self.target_path, str(datetime.date.today()))
-                
-                if zip_folder(filename, self.tot_path):
-                    print('Error: ZIP failed')
+                filename = os.path.join('..\\archive', str(datetime.date.today()))
+                print(filename)
+                print(self.tot_path)
+                # if zip_folder(filename, self.tot_path):
+                #     print('Error: ZIP failed')
                 print('zipped')
 
                 self.server.broadcast_string('zip')
-                time.sleep(0.5)
+                time.sleep(0.75)
                 print('sending zip')
-                self.server.broadcast_zip(os.path.join(
-                    './archive', self.target_path, str(datetime.date.today()) + '.zip'))
-                print('done shipping')
+                if self.server.broadcast_zip(filename + '.zip'):
+                    print('Error: Failed to broadcast')
+                else:
+                    print('done shipping')
             else:
                 return 1
         return 0

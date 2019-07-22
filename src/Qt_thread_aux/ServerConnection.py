@@ -64,6 +64,8 @@ class ServerConnectionThread(QtCore.QObject):
         return 0
 
     def alive_message_loop(self):
+        # TODO(Jerry): July 22, 2019
+        # pause check when sending zip.
         while self.run:
             while self.standby:
                 time.sleep(self.sleep)
