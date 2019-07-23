@@ -402,18 +402,14 @@ class UiFrmServerTerminal(object):
         row = self.lstTargetDirs.currentRow()
         if row < 0:
             return 1
-        item = self.lstTargetDirs.takeItem(row)
         server.set_list_of_observer(operation=2, index=row)
         self.txtStatusUpdate.append('Deleted ' + item.text())
-        del item
+        self.refresh_directory()
+
         return 0
 
     def browse_directory(self):
         global server
-        if not server:
-            self.txtStatusUpdate.append(
-                "Error: No server set yet. Please set a server before adding a directory.")
-            return 1
         dir_name = QtWidgets.QFileDialog.getExistingDirectory(
             None, 'Select a Directory', LIB_PATH, QtWidgets.QFileDialog.ShowDirsOnly)
         if dir_name:
@@ -446,7 +442,8 @@ class UiFrmServerTerminal(object):
         self.linInputIP.setDisabled(True)
         self.linPort.setDisabled(True)
 
-        self.connection.resume()
+        self.connection.resume_conn()
+        self.connection.resume_alive()
 
     def menu_base_path(self):
         global LIB_PATH
@@ -468,10 +465,7 @@ class UiFrmServerTerminal(object):
         if not server or not server.get_list_of_observer():
             return 1
         for observer in server.get_list_of_observer():
-            row = self.lstTargetDirs.currentRow()
-            self.lstTargetDirs.insertItem(row, observer.get_target_path())
-        self.txtStatusUpdate.append(
-            'Number of Directories: {}'.format(server.get_num_of_observer()))
+            self.lstTargetDirs.addItem(observer.get_target_path())
         return 0
 
     def refresh_list_of_conn(self):

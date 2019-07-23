@@ -6,12 +6,14 @@
 # ========================================
 
 import shutil
+import datetime
+import socket
 
 from typing import List
+from .client import Client
 
-from .client import *
-
-import datetime
+# TODO(Jerry): July 23, 2019
+# Look into problem with relative import and stuff
 
 
 def zip_folder(output: str, target: str) -> int:
@@ -37,6 +39,9 @@ def check_connection(list_of_connection: List[socket.socket]) -> List[socket.soc
     :param list_of_connection: List of client connection
     :return: return the dead clients that were popped of the list
     """
+    # TODO(Jerry): July 23, 2019
+    # Think if communication needs to bi-directional
+    # There is the multiple computer waiting glitch
     _list = []
     i = 0
 
@@ -80,3 +85,27 @@ def time_stamp(
         stamp = stamp.replace(microsecond=0)
 
     return str(stamp) + " " + temp
+
+
+class Configuration:
+    default_file = None
+
+    def __init__(self):
+        pass
+
+    def set_config_file(self):
+        try:
+            f_pointer = open('./config.txt', 'r', encoding='utf-8')
+        except FileNotFoundError:
+            return 1
+
+        for line in f_pointer:
+            line = line.rstrip("\n").split(";")
+
+            print (line)
+
+        return 0
+
+if __name__ == '__main__':
+    cf = Configuration()
+    cf.set_config_file()

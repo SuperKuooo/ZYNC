@@ -5,10 +5,16 @@
 # Designed for Antiloop Studio. July 2019
 # ========================================
 
-from .utils import *
+import socket
+import time
 
 from typing import List, Union, Tuple
+from .client import Client
 
+# TODO(Jerry): July 23, 2019
+#  add channels to support
+#  RIP. That's a ton of work to do it right.
+#  Look into async and other stuff to make it work.
 
 class Server:
     """ Creates a server wrapper that hosts connection and watches file changes
@@ -103,7 +109,7 @@ class Server:
         elif operation == 1:
             self.list_of_observer = _observer
         elif operation == 2:
-            if not index:
+            if index is not None:
                 self.list_of_observer[index].close()
                 self.list_of_observer.pop(index)
         elif operation == 3:
@@ -222,10 +228,10 @@ class Server:
 
         for conn in target_audience:
             try:
-                with open(location, 'rb') as fp:
-                    if not fp:
+                with open(location, 'rb') as fpointer:
+                    if not fpointer:
                         return 1
-                    conn.sendall(fp.read())
+                    conn.sendall(fpointer.read())
             except socket.error:
                 return 1
         return 0
@@ -252,7 +258,9 @@ class Server:
         try:
             return self.s.listen(size)
         except socket.error:
+            # Catches error when terminating the server.
             return 1
+
     def accept(self):
         """ Accepts the connection
 
@@ -261,4 +269,5 @@ class Server:
         try:
             return self.s.accept()
         except socket.error:
+            # Cathches error when terminating the server
             return 1, 1

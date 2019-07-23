@@ -89,8 +89,9 @@ class ClientConnectionThread(QtCore.QObject):
 
             # TODO(Jerry): July 22, 2019
             #  Bug: After receiving zip, client disconnects without reason
-            #  but is able to reconnect on its own.
-            #  Reason: after receiving from zip, op still has some left over data?
+            #       but is able to reconnect on its own.
+            #  Reason: client cannot respond to check_connection while
+            #          receiving zip
             try:
                 op = self.client.recv(self.buffer_size)
             except AttributeError:

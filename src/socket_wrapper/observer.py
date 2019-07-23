@@ -10,7 +10,8 @@ import time
 import os
 
 from watchdog.observers import Observer as Obs
-from .server import *
+from .server import Server
+from .utils import zip_folder
 
 # TODO(Jerry): July 22, 2019
 #  Re-examine the observer/handler structure
@@ -165,8 +166,8 @@ class Handler:
                 filename = os.path.join('..\\archive', str(datetime.date.today()))
                 print(filename)
                 print(self.tot_path)
-                # if zip_folder(filename, self.tot_path):
-                #     print('Error: ZIP failed')
+                if zip_folder(filename, self.tot_path):
+                    print('Error: ZIP failed')
                 print('zipped')
 
                 self.server.broadcast_string('zip')

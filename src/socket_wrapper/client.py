@@ -19,7 +19,7 @@ class Client:
     Attributes:
         name: Local client name
         s: low-level socket that is being wrapped by.
-
+    
     """
 
     def __init__(self, conn: socket.socket = None):
@@ -56,7 +56,8 @@ class Client:
                 break
             except socket.error:
                 if time_to_reconnect:
-                    print("Reconnecting in " + str(time_to_reconnect) + " seconds...")
+                    print("Reconnecting in " +
+                          str(time_to_reconnect) + " seconds...")
                     time.sleep(time_to_reconnect)
                     continue
                 return 1
@@ -80,18 +81,18 @@ class Client:
         if not message:
             # Sets default message if not specified
             message = self.name + '///is online'
-            
+
         self.s.settimeout(5)
         data = self.s.recv(4096).decode('utf-8')
 
         if data != message:
             # Compares the outgoing and incoming messages
-            print(message) # Outgoing
+            print(message)  # Outgoing
             print(data)    # Incoming
             raise UserWarning('Error: Different echo value')
         return 0
 
-    def recv(self, buffer_size: int, timeout: int = 2):
+    def recv(self, buffer_size: int, timeout: int = 5):
         """ Receives from the server
 
         :param buffer_size: the size to receive at once
@@ -172,10 +173,16 @@ class Client:
         :param file_pointer: where to save the incoming data
         :return: returns 1
         """
+
+        # TODO(Jerry): July 23, 2019
+        #  Better exit statement. Right now it's cathcing with
+        #  blunt force. Not ideal.
+        #  Solution: Might have to add prefix to the messages 
+        #  and read the prefix first.
         try:
             i = 0
             while True:
-                i +=1
+                i += 1
                 self.s.settimeout(5)
                 data = self.s.recv(buffer)
                 if not data:
@@ -186,7 +193,7 @@ class Client:
         except socket.error:
             return 0
         return 0
-        
+
     def close(self) -> int:
         """ Closes the client socket
 
