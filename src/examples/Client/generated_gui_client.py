@@ -1,31 +1,14 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'ZYNC_Client.ui'
+#
+# Created by: PyQt5 UI code generator 5.11.3
+#
+# WARNING! All changes made in this file will be lost!
+
 from PyQt5 import QtCore, QtGui, QtWidgets
-from functools import partial
-import datetime
-import time
-import sys
-import os
-import threading
 
-rn = datetime.datetime.now
-SAVE_LOCATION = '..\\..\\save'
-reconnect_time = 3
-BUFFER_SIZE = 4096
-client = None
-
-
-class Ui_frmClient(object):
-    def __init__(self, frmClientTerminal):
-        self.auto_reconn = True
-
-        self.connection = ConnectionThread()
-        self.connection.sig.connect(self.update_messages)
-        self.connection.init()
-
-        self.setupUi(frmClientTerminal)
-        self.retranslateUi(frmClientTerminal)
-        self.button_clicked(frmClientTerminal)
-        self.menu_actions()
-
+class Ui_frmClientTerminal(object):
     def setupUi(self, frmClientTerminal):
         frmClientTerminal.setObjectName("frmClientTerminal")
         frmClientTerminal.resize(823, 464)
@@ -190,174 +173,13 @@ class Ui_frmClient(object):
         self.actionSave_Directory.setText(_translate("frmClientTerminal", "Save Location"))
         self.actionSave_Log.setText(_translate("frmClientTerminal", "Save Log"))
 
-    def button_clicked(self, frmClientTerminal):
-        frmClientTerminal.closeEvent=self.close_gui
-        self.btnStartClient.clicked.connect(self.set_client_for_ui)
-
-    def menu_actions(self):
-        self.actionAuto_Reconnect.triggered.connect(self.auto_reconnect)
-        self.actionSave_Directory.triggered.connect(self.change_save_location)
-        # self.actionReset.triggered.connect(partial(self.reset_client, True))
-
-    def auto_reconnect(self):
-        box = QtWidgets.QMessageBox()
-        box.setText('Do you want the client to auto reconnect?')
-        box.setWindowTitle('Set Auto Connect')
-        box.setStandardButtons(QtWidgets.QMessageBox.Yes|
-                            QtWidgets.QMessageBox.No)
-        box.setIcon(QtWidgets.QMessageBox.Question)
-
-        retval = box.exec_()
-        if retval == QtWidgets.QMessageBox.Yes:
-            self.auto_reconn = True
-        else:
-            self.auto_reconn = False
-
-    def change_save_location(self):
-        dir_name = QtWidgets.QFileDialog.getExistingDirectory(
-            None, 'Select a Directory')
-        
-        if dir_name:
-            self.txtStatusUpdate.append('Save location changed to: ' + dir_name)
-
-    def close_gui(self, e):
-        global client
-        client  = None
-        return self.connection.end()
-
-    def update_messages(self):
-        global client
-
-        if not self.connection.get_messages():
-            return 1
-        for message in self.connection.get_messages():
-            if message == 'RESET':
-                # client = None
-                # print('pausing thread')
-                self.connection.pause()
-                self.set_client_for_ui()
-                break
-            self.txtStatusUpdate.append(message)
-        self.connection.set_messages()
-        
-    def set_client_for_ui(self):
-        global client
-        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Initializing client...')
-        try:
-            input_ip = self.linInputIP.text()
-            input_port = int(self.linPort.text())
-        except ValueError:
-            self.txtStatusUpdate.append('Error: Bad Input')
-            return 1
-
-        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Attempting to connect to server')
-        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Do not close window')
-
-        if not client:
-            client = sw.Client()
-
-        if client.set_client_connection(input_ip, input_port, 3) == 1:
-            self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Failed to start client')
-            return 1
-
-        client.send_string(client.get_client_name() + "///is online")
-        client.confirm_connection()
-    
-        self.btnStartClient.setDisabled(True)
-        self.btnStartClient.setText('Connected')
-        self.linInputIP.setDisabled(True)
-        self.linPort.setDisabled(True)
-        
-        self.txtStatusUpdate.append(sw.time_stamp(dates=False) + 'Connected to server')
-        self.connection.start()
-
-
-class ConnectionThread(QtCore.QObject):
-    sig = QtCore.pyqtSignal()
-    messages = []
-    RUN = False
-    standby = True
-
-    def init(self):
-        self.communication_loop = threading.Thread(
-            target=self.communication_loop, name='communication_loop')
-
-        self.pause()
-        self.communication_loop.start()
-
-    def start(self):
-        self.RUN = True
-        self.standby = False
-
-    def pause(self):
-        self.RUN = True
-        self.standby = True
-
-    def end(self):
-        global client
-        self.RUN = False
-        self.standby = False
-        self.communication_loop.join()
-        client = None
-    
-    def get_messages(self):
-        return self.messages
-
-    def set_messages(self):
-        return self.messages.clear()
-
-    def communication_loop(self):
-        global client
-        while self.RUN:
-            while self.standby:
-                time.sleep(1)
-            # print(rn(), 'waiting for + ', client.s.getsockname())
-            try:
-                op = client.recv(BUFFER_SIZE)
-            except AttributeError:
-                return 1
-            # print(op)
-            if op == bytes('0', 'utf-8'):
-                # print('conn')
-                client.send_string(op, raw=True)
-            elif op == bytes('zip', 'utf-8'):
-                print(op)
-                self.messages.append('FILE: Receiving ZIP')
-                self.sig.emit()
-                
-                ZIP_NAME = 'target.zip'
-
-                temp = os.path.join(SAVE_LOCATION, ZIP_NAME)
-                print(temp)
-                fp = open(temp, 'wb')
-                client.save_file(BUFFER_SIZE, fp)
-
-                self.messages.append('FILE: Finished transfer zip')
-                self.sig.emit()
-                fp.close()
-            elif op == bytes('image', 'utf-8'):
-                fp = open('../save/shipment.jpg', 'wb')
-                # client.save_file(BUFFER_SIZE, fp)
-
-            else:
-                print(op)
-                print('connection lost')
-                self.messages.append('Error: Lost connection to server')
-                self.messages.append('RESET')
-                self.sig.emit()
-                self.pause()
-            
-            self.sig.emit()
-            time.sleep(0.5)
-
 
 if __name__ == "__main__":
-    sys.path.append('..\\')
-    import lib.socket_wrapper as sw
-
+    import sys
     app = QtWidgets.QApplication(sys.argv)
-    ClientTerminal = QtWidgets.QMainWindow()
-    ui = Ui_frmClient(ClientTerminal)
-
-    ClientTerminal.show()
+    frmClientTerminal = QtWidgets.QMainWindow()
+    ui = Ui_frmClientTerminal()
+    ui.setupUi(frmClientTerminal)
+    frmClientTerminal.show()
     sys.exit(app.exec_())
+

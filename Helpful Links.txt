@@ -1,0 +1,10 @@
+Here are a few things I found interesting when building this project.
+
+
+TCP/IP is a stream-based protocol, not a message-based protocol.
+There's no guarantee that every send() call by one peer results 
+in a single recv() call by the other peer receiving the exact data 
+sent
+Source:: https://stackoverflow.com/questions/17667903/python-socket-receive-large-amount-of-data
+
+

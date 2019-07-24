@@ -1,14 +1,22 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'File Transfer Client.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.3
-#
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sys
+import socket_wrapper as sw
+from Qt_thread_aux import ClientConnection as cc
 
-class Ui_frmClientTerminal(object):
+client = sw.Client()
+
+class Ui_frmClient(object):
+    def __init__(self, frmClientTerminal):
+        self.auto_reconn = True
+
+        self.connection = cc.ClientConnectionThread(client)
+        self.connection.sig.connect(self.update_messages)
+
+        self.setupUi(frmClientTerminal)
+        self.retranslateUi(frmClientTerminal)
+        self.button_clicked(frmClientTerminal)
+        self.menu_actions()
+
     def setupUi(self, frmClientTerminal):
         frmClientTerminal.setObjectName("frmClientTerminal")
         frmClientTerminal.resize(823, 464)
@@ -27,7 +35,8 @@ class Ui_frmClientTerminal(object):
         self.lblListOfConnection.setFont(font)
         self.lblListOfConnection.setObjectName("lblListOfConnection")
         self.horizontalLayout_11.addWidget(self.lblListOfConnection)
-        spacerItem = QtWidgets.QSpacerItem(138, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            138, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_11.addItem(spacerItem)
         self.lblDetails = QtWidgets.QLabel(self.layoutWidget)
         font = QtGui.QFont()
@@ -62,7 +71,8 @@ class Ui_frmClientTerminal(object):
         self.lblInputIP = QtWidgets.QLabel(self.layoutWidget_2)
         self.lblInputIP.setObjectName("lblInputIP")
         self.horizontalLayout_12.addWidget(self.lblInputIP)
-        spacerItem1 = QtWidgets.QSpacerItem(38, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            38, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_12.addItem(spacerItem1)
         self.linInputIP = QtWidgets.QLineEdit(self.layoutWidget_2)
         self.linInputIP.setObjectName("linInputIP")
@@ -73,7 +83,8 @@ class Ui_frmClientTerminal(object):
         self.lblPort = QtWidgets.QLabel(self.layoutWidget_2)
         self.lblPort.setObjectName("lblPort")
         self.horizontalLayout_13.addWidget(self.lblPort)
-        spacerItem2 = QtWidgets.QSpacerItem(28, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem2 = QtWidgets.QSpacerItem(
+            28, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_13.addItem(spacerItem2)
         self.linPort = QtWidgets.QLineEdit(self.layoutWidget_2)
         self.linPort.setObjectName("linPort")
@@ -107,7 +118,8 @@ class Ui_frmClientTerminal(object):
         self.txtStatusUpdate.setObjectName("txtStatusUpdate")
         self.lstTransferredFiles = QtWidgets.QListWidget(self.centralwidget)
         self.lstTransferredFiles.setGeometry(QtCore.QRect(12, 32, 541, 231))
-        self.lstTransferredFiles.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.lstTransferredFiles.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectRows)
         self.lstTransferredFiles.setObjectName("lstTransferredFiles")
         frmClientTerminal.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(frmClientTerminal)
@@ -153,33 +165,128 @@ class Ui_frmClientTerminal(object):
 
     def retranslateUi(self, frmClientTerminal):
         _translate = QtCore.QCoreApplication.translate
-        frmClientTerminal.setWindowTitle(_translate("frmClientTerminal", "Client Terminal"))
-        self.lblListOfConnection.setText(_translate("frmClientTerminal", "Transferred Files"))
-        self.lblDetails.setText(_translate("frmClientTerminal", "Item Details"))
+        frmClientTerminal.setWindowTitle(_translate(
+            "frmClientTerminal", "Client Terminal"))
+        self.lblListOfConnection.setText(_translate(
+            "frmClientTerminal", "Transferred Files"))
+        self.lblDetails.setText(_translate(
+            "frmClientTerminal", "Item Details"))
         self.btnStartClient.setText(_translate("frmClientTerminal", "START"))
         self.lblInputIP.setText(_translate("frmClientTerminal", "IP Address"))
-        self.linInputIP.setText(_translate("frmClientTerminal", "192.168.1.118"))
+        self.linInputIP.setText(_translate(
+            "frmClientTerminal", "192.168.1.118"))
         self.lblPort.setText(_translate("frmClientTerminal", "Port Number"))
         self.linPort.setText(_translate("frmClientTerminal", "8000"))
-        self.lblStatusLog.setText(_translate("frmClientTerminal", "Status Log:"))
+        self.lblStatusLog.setText(_translate(
+            "frmClientTerminal", "Status Log:"))
         self.menuFile.setTitle(_translate("frmClientTerminal", "File"))
         self.menuSettings.setTitle(_translate("frmClientTerminal", "Settings"))
-        self.actionAuto_Reconnect.setText(_translate("frmClientTerminal", "Auto Reconnect"))
+        self.actionAuto_Reconnect.setText(
+            _translate("frmClientTerminal", "Auto Reconnect"))
         self.actionTimeout.setText(_translate("frmClientTerminal", "Timeout"))
-        self.actionReconnect_Time.setText(_translate("frmClientTerminal", "Reconnect Time"))
+        self.actionReconnect_Time.setText(
+            _translate("frmClientTerminal", "Reconnect Time"))
         self.actionHelp.setText(_translate("frmClientTerminal", "Help"))
         self.actionClose.setText(_translate("frmClientTerminal", "Close"))
         self.actionReset.setText(_translate("frmClientTerminal", "Reset"))
-        self.actionSave_Directory.setText(_translate("frmClientTerminal", "Save Location"))
-        self.actionSave_Log.setText(_translate("frmClientTerminal", "Save Log"))
+        self.actionSave_Directory.setText(
+            _translate("frmClientTerminal", "Save Location"))
+        self.actionSave_Log.setText(
+            _translate("frmClientTerminal", "Save Log"))
+
+    def button_clicked(self, frmClientTerminal):
+        frmClientTerminal.closeEvent = self.close_gui
+        self.btnStartClient.clicked.connect(self.set_client_for_ui)
+
+    def menu_actions(self):
+        self.actionAuto_Reconnect.triggered.connect(self.auto_reconnect)
+        self.actionSave_Directory.triggered.connect(self.change_save_location)
+        # self.actionReset.triggered.hconnect(partial(self.reset_client, True))
+
+    def auto_reconnect(self):
+        box = QtWidgets.QMessageBox()
+        box.setText('Do you want the client to auto reconnect?')
+        box.setWindowTitle('Set Auto Connect')
+        box.setStandardButtons(QtWidgets.QMessageBox.Yes |
+                               QtWidgets.QMessageBox.No)
+        box.setIcon(QtWidgets.QMessageBox.Question)
+
+        retval = box.exec_()
+        if retval == QtWidgets.QMessageBox.Yes:
+            self.auto_reconn = True
+        else:
+            self.auto_reconn = False
+
+    def change_save_location(self):
+        dir_name = QtWidgets.QFileDialog.getExistingDirectory(
+            None, 'Select a Directory')
+
+        if dir_name:
+            self.txtStatusUpdate.append(
+                'Save location changed to: ' + dir_name)
+
+    def close_gui(self, e):
+        global client
+
+        client = None
+        return self.connection.end()
+
+    def update_messages(self):
+        global client
+
+        if not self.connection.get_messages():
+            return 1
+        for message in self.connection.get_messages():
+            splt_message = message.split()
+            if splt_message[0] == 'RESET':
+                print('Connection Lost')
+                self.connection.pause_communication()
+                self.set_client_for_ui()
+                break
+            elif splt_message[0] == 'BUTTON':
+                self.btnStartClient.setText(splt_message[1])
+                continue
+            elif splt_message[0] == 'FILE':
+                # TODO(Jerry): July 22, 2019
+                # Find the right name for splt message
+                row = self.lstTransferredFiles.currentRow()
+                self.lstTransferredFiles.insertItem(row, splt_message[1])
+
+            self.txtStatusUpdate.append(message)
+        self.connection.set_messages()
+
+    def set_client_for_ui(self):
+        global client
+
+        self.txtStatusUpdate.append(sw.time_stamp(
+            dates=False) + 'Initializing client...')
+        try:
+            input_ip = self.linInputIP.text()
+            input_port = int(self.linPort.text())
+            self.connection.set_ip_port(input_ip, input_port)
+        except ValueError:
+            self.txtStatusUpdate.append(
+                sw.time_stamp(dates=False) + 'Error: Bad Input')
+            return 1
+
+        self.txtStatusUpdate.append(sw.time_stamp(
+            dates=False) + 'Attempting to connect to server')
+        self.txtStatusUpdate.append(sw.time_stamp(
+            dates=False) + 'Do not close window')
+
+        self.btnStartClient.setDisabled(True)
+        self.btnStartClient.setText('Connecting')
+        self.linInputIP.setDisabled(True)
+        self.linPort.setDisabled(True)
+
+        self.connection.start_connection()
+        self.connection.resume_connection()
 
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
-    frmClientTerminal = QtWidgets.QMainWindow()
-    ui = Ui_frmClientTerminal()
-    ui.setupUi(frmClientTerminal)
-    frmClientTerminal.show()
-    sys.exit(app.exec_())
+    ClientTerminal = QtWidgets.QMainWindow()
+    ui = Ui_frmClient(ClientTerminal)
 
+    ClientTerminal.show()
+    sys.exit(app.exec_())

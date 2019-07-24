@@ -1,0 +1,11 @@
+# Check readme for more options (In Progress)
+server:
+    debug: False
+    print: gui
+    default_open_directory:
+    archive_directory:
+
+client:
+    debug: False
+    print: gui
+    default_save_directory:
