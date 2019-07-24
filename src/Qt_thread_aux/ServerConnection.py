@@ -37,7 +37,7 @@ class ServerConnectionThread(QtCore.QObject):
         self.alive_standby = True
         self.conn_standby = True
         self.server = server
-        self.refresh_rate = 0.1
+        self.refresh_rate = 0.5
         self.sleep = 1
         self.max_connection = 5
         self.buffer_size = 4096

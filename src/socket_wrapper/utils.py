@@ -23,13 +23,14 @@ def zip_folder(output: str, target: str) -> int:
     :param target: The target directory(Directory being zipped)
     :return: Return 1 if zip error. Else return 0
     """
+    print('output: ', output)
+    print('target: ', target)
     try:
         print('zipping target')
-        shutil.make_archive(output, "zip", target)
+        # shutil.make_archive(output, "zip", target)
     except shutil.Error:
-        print('failed')
+        print('Error: Zip failed')
         return 1
-    print('zipped')
     return 0
 
 
@@ -41,7 +42,8 @@ def check_connection(list_of_connection: List[socket.socket]) -> List[socket.soc
     """
     # TODO(Jerry): July 23, 2019
     # Think if communication needs to bi-directional
-    # There is the multiple computer waiting glitch
+    # There is the multiple computers waiting glitch
+
     _list = []
     i = 0
 
@@ -55,6 +57,25 @@ def check_connection(list_of_connection: List[socket.socket]) -> List[socket.soc
             list_of_connection.pop(i)
         i += 1
     return _list
+
+
+def print_error(retval, message = None):
+    if retval == Error.NoFile:
+        print('Error: Failed to open file')
+    elif retval == Error.NoTarget:
+        print('Error: Empty Target')
+    elif retval == Error.FailToSend:
+        print('Error: Failed To send')
+    elif retval == Error.FailToInitialize:
+        print('Error: Failed To Initialize')
+    elif retval == Error.FailSocketOp:
+        print('Error: Socket operation failed')
+    elif retval == Error.NoSuchOp:
+        print('Error: Invalid input operation')
+    elif retval == Error.CloseSocket:
+        print('Error: Closing socket')
+    elif message:
+        print(message)
 
 
 def time_stamp(
@@ -102,9 +123,23 @@ class Configuration:
         for line in f_pointer:
             line = line.rstrip("\n").split(";")
 
-            print (line)
+            print(line)
 
         return 0
+
+
+class Error(enumerate):
+    EmptyResult = -1
+    NoFile = 1
+    NoRecvTarget = 2
+    FailToSend = 3
+    FailToInitialize = 4
+    FailSocketOp = 5
+    NoSuchOp = 6
+    CloseSocket = 7
+
+    Other = 99
+
 
 if __name__ == '__main__':
     cf = Configuration()

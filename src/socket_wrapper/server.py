@@ -10,11 +10,13 @@ import time
 
 from typing import List, Union, Tuple
 from .client import Client
+from .utils import Error as er
 
 # TODO(Jerry): July 23, 2019
 #  add channels to support
 #  RIP. That's a ton of work to do it right.
 #  Look into async and other stuff to make it work.
+
 
 class Server:
     """ Creates a server wrapper that hosts connection and watches file changes
@@ -56,7 +58,7 @@ class Server:
                 time.sleep(attempt_to_reconnect)
                 self.set_server_connection(
                     input_ip, input_port, attempt_to_reconnect)
-            return 1
+            return er.FailSocketOp
         return input_ip, input_port
 
     def set_list_of_connection(
@@ -85,7 +87,7 @@ class Server:
         elif operation == 3:
             self.list_of_connection.clear()
         else:
-            return 1
+            return er.NoSuchOp
         return 0
 
     def set_list_of_observer(
@@ -117,7 +119,7 @@ class Server:
                 obs.close()
             self.list_of_observer.clear()
         else:
-            return 1
+            return er.NoSuchOp
         return 0
 
     def get_num_of_connection(self) -> int:
@@ -127,7 +129,7 @@ class Server:
                  returns list length
         """
         if self.list_of_connection is None:
-            return -1
+            return er.EmptyResult
         else:
             return len(self.list_of_connection)
 
@@ -138,7 +140,7 @@ class Server:
                  returns list length
         """
         if self.list_of_observer is None:
-            return -1
+            return er.EmptyResult
         else:
             return len(self.list_of_observer)
 
@@ -151,8 +153,7 @@ class Server:
         """
         if not index:
             return self.list_of_connection
-        else:
-            return self.list_of_connection[index]
+        return self.list_of_connection[index]
 
     def get_list_of_observer(self, index: int = None):  # TODO(Jerry): Add type hint
         """ Get the list or specific observer details
@@ -189,7 +190,7 @@ class Server:
             temp.send_string(message)
             self.set_list_of_connection(conn)
         except socket.error:
-            return 1
+            return er.FailToSend
         return 0
 
     def broadcast_string(self, message: str, client_index: int = None) -> int:
@@ -210,7 +211,7 @@ class Server:
                 temp = Client(conn)
                 temp.send_string(message)
             except socket.error:
-                return 1
+                return er.FailToSend
         return 0
 
     def broadcast_zip(self, location: str, client_index: int = None):
@@ -221,19 +222,25 @@ class Server:
         :return: returns 1 if failed to send zip
                  returns 0 if no error
         """
+
+        #TODO (Jerry): July 24, 2019
+        # Add a double check method that sends a string to check
+        # if zip has actually been received
+
         if client_index is None:
             target_audience = self.get_list_of_connection()
         else:
             target_audience = self.get_list_of_connection(client_index)
-
+        if not target_audience:
+            return er.NoRecvTarget
         for conn in target_audience:
             try:
                 with open(location, 'rb') as fpointer:
-                    if not fpointer:
-                        return 1
                     conn.sendall(fpointer.read())
+            except FileNotFoundError:
+                return er.NoFile
             except socket.error:
-                return 1
+                return er.FailToSend
         return 0
 
     def close(self):
@@ -259,7 +266,7 @@ class Server:
             return self.s.listen(size)
         except socket.error:
             # Catches error when terminating the server.
-            return 1
+            return er.CloseSocket
 
     def accept(self):
         """ Accepts the connection
@@ -270,4 +277,4 @@ class Server:
             return self.s.accept()
         except socket.error:
             # Cathches error when terminating the server
-            return 1, 1
+            return er.CloseSocket, er.CloseSocket

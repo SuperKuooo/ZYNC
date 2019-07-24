@@ -201,7 +201,7 @@ class Ui_frmClient(object):
     def menu_actions(self):
         self.actionAuto_Reconnect.triggered.connect(self.auto_reconnect)
         self.actionSave_Directory.triggered.connect(self.change_save_location)
-        # self.actionReset.triggered.connect(partial(self.reset_client, True))
+        # self.actionReset.triggered.hconnect(partial(self.reset_client, True))
 
     def auto_reconnect(self):
         box = QtWidgets.QMessageBox()

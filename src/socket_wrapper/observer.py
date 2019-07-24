@@ -11,7 +11,8 @@ import os
 
 from watchdog.observers import Observer as Obs
 from .server import Server
-from .utils import zip_folder
+from .utils import zip_folder, print_error
+from .utils import Error as er
 
 # TODO(Jerry): July 22, 2019
 #  Re-examine the observer/handler structure
@@ -163,22 +164,24 @@ class Handler:
         if not self.pause:
             if event.src_path.endswith('.log'):
                 print('Logfile Modified')
-                filename = os.path.join('..\\archive', str(datetime.date.today()))
-                print(filename)
-                print(self.tot_path)
+                filename = os.path.join('../archive', str(datetime.date.today()))
+
                 if zip_folder(filename, self.tot_path):
                     print('Error: ZIP failed')
                 print('zipped')
 
-                self.server.broadcast_string('zip')
+                retval = self.server.broadcast_string('zip')
+                print_error(retval)
+
+
                 time.sleep(0.75)
+
                 print('sending zip')
-                if self.server.broadcast_zip(filename + '.zip'):
-                    print('Error: Failed to broadcast')
-                else:
-                    print('done shipping')
+                
+                retval = self.server.broadcast_zip(filename + '.zip')
+                print_error(retval)
             else:
-                return 1
+                return er.NoSuchOp
         return 0
 
     def get_details(self):

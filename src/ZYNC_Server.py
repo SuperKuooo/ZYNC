@@ -1,10 +1,14 @@
 import sys
 import socket_wrapper as sw
+
+from socket_wrapper.utils import Error as er
 from Qt_thread_aux.ServerConnection import ServerConnectionThread
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
+# Default global settings
 server = sw.Server()
-current_row = None
+current_row = -1
 LIB_PATH = 'C:/Users/user/Documents/Unity_Build_Library'
 
 
@@ -349,9 +353,10 @@ class UiFrmServerTerminal(object):
 
         self.gpbOptions.setDisabled(True)
         self.btnConfirm.setDisabled(True)
-
+    # TODO (Jerry): July 24, 2019
+    # Big feature. Not yet implemented.
     # This require tremendous amount of effort to do actually. Because of how I designed it.
-    # TODO: Big feature. Not yet implemented.
+
     def change_detection_method(self):
         global current_row
         observer = server.get_list_of_observer(current_row)
@@ -402,6 +407,7 @@ class UiFrmServerTerminal(object):
         row = self.lstTargetDirs.currentRow()
         if row < 0:
             return 1
+        item = self.lstTargetDirs.takeItem(row)
         server.set_list_of_observer(operation=2, index=row)
         self.txtStatusUpdate.append('Deleted ' + item.text())
         self.refresh_directory()
@@ -431,7 +437,7 @@ class UiFrmServerTerminal(object):
             self.txtStatusUpdate.append('Error: Bad Input')
             return
 
-        if server.set_server_connection(input_ip, input_port, 3) == 1:
+        if server.set_server_connection(input_ip, input_port, 3) == er.FailSocketOp:
             self.txtStatusUpdate.append("Error: Failed to start server")
             return 1
 
@@ -485,6 +491,5 @@ if __name__ == "__main__":
     ServerTerminal = QtWidgets.QMainWindow()
     ui = UiFrmServerTerminal(ServerTerminal)
     ServerTerminal.show()
-
     app.exec_()
     sys.exit(0)

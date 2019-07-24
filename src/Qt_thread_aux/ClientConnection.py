@@ -92,10 +92,14 @@ class ClientConnectionThread(QtCore.QObject):
             #       but is able to reconnect on its own.
             #  Reason: client cannot respond to check_connection while
             #          receiving zip
+
             try:
                 op = self.client.recv(self.buffer_size)
             except AttributeError:
                 return 1
+
+            print(op)
+
             if op == bytes('0', 'utf-8'):
                 self.client.send_string(op, raw=True)
             elif op == bytes('zip', 'utf-8'):
