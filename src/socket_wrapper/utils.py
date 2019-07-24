@@ -27,7 +27,7 @@ def zip_folder(output: str, target: str) -> int:
     print('target: ', target)
     try:
         print('zipping target')
-        # shutil.make_archive(output, "zip", target)
+        shutil.make_archive(output, "zip", target)
     except shutil.Error:
         print('Error: Zip failed')
         return 1
@@ -62,7 +62,7 @@ def check_connection(list_of_connection: List[socket.socket]) -> List[socket.soc
 def print_error(retval, message = None):
     if retval == Error.NoFile:
         print('Error: Failed to open file')
-    elif retval == Error.NoTarget:
+    elif retval == Error.NoRecvTarget:
         print('Error: Empty Target')
     elif retval == Error.FailToSend:
         print('Error: Failed To send')
