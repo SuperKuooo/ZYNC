@@ -1,6 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import socket_wrapper as sw
+
+from socket_wrapper.utils import time_stamp, unzip_folder
 from Qt_thread_aux import ClientConnection as cc
 
 # TODO(Jerry): July 24th, 2019
@@ -8,7 +10,7 @@ from Qt_thread_aux import ClientConnection as cc
 
 
 client = sw.Client()
-
+current_row = -1
 
 class Ui_frmClient(object):
     def __init__(self, frmClientTerminal):
@@ -19,7 +21,7 @@ class Ui_frmClient(object):
 
         self.setupUi(frmClientTerminal)
         self.retranslateUi(frmClientTerminal)
-        self.button_clicked(frmClientTerminal)
+        self.clicked_binding(frmClientTerminal)
         self.menu_actions()
 
     def setupUi(self, frmClientTerminal):
@@ -40,16 +42,6 @@ class Ui_frmClient(object):
         self.lblListOfConnection.setFont(font)
         self.lblListOfConnection.setObjectName("lblListOfConnection")
         self.horizontalLayout_11.addWidget(self.lblListOfConnection)
-        spacerItem = QtWidgets.QSpacerItem(
-            138, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_11.addItem(spacerItem)
-        self.lblDetails = QtWidgets.QLabel(self.layoutWidget)
-        font = QtGui.QFont()
-        font.setFamily("Myriad Pro")
-        font.setPointSize(12)
-        self.lblDetails.setFont(font)
-        self.lblDetails.setObjectName("lblDetails")
-        self.horizontalLayout_11.addWidget(self.lblDetails)
         self.line = QtWidgets.QFrame(self.centralwidget)
         self.line.setGeometry(QtCore.QRect(90, 265, 721, 31))
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
@@ -76,9 +68,8 @@ class Ui_frmClient(object):
         self.lblInputIP = QtWidgets.QLabel(self.layoutWidget_2)
         self.lblInputIP.setObjectName("lblInputIP")
         self.horizontalLayout_12.addWidget(self.lblInputIP)
-        spacerItem1 = QtWidgets.QSpacerItem(
-            38, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_12.addItem(spacerItem1)
+        spacerItem = QtWidgets.QSpacerItem(38, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_12.addItem(spacerItem)
         self.linInputIP = QtWidgets.QLineEdit(self.layoutWidget_2)
         self.linInputIP.setObjectName("linInputIP")
         self.horizontalLayout_12.addWidget(self.linInputIP)
@@ -88,22 +79,13 @@ class Ui_frmClient(object):
         self.lblPort = QtWidgets.QLabel(self.layoutWidget_2)
         self.lblPort.setObjectName("lblPort")
         self.horizontalLayout_13.addWidget(self.lblPort)
-        spacerItem2 = QtWidgets.QSpacerItem(
-            28, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_13.addItem(spacerItem2)
+        spacerItem1 = QtWidgets.QSpacerItem(28, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_13.addItem(spacerItem1)
         self.linPort = QtWidgets.QLineEdit(self.layoutWidget_2)
         self.linPort.setObjectName("linPort")
         self.horizontalLayout_13.addWidget(self.linPort)
         self.verticalLayout_10.addLayout(self.horizontalLayout_13)
         self.verticalLayout_9.addLayout(self.verticalLayout_10)
-        self.txtDetails = QtWidgets.QTextEdit(self.centralwidget)
-        self.txtDetails.setGeometry(QtCore.QRect(570, 30, 241, 231))
-        font = QtGui.QFont()
-        font.setFamily("Myriad Pro")
-        font.setPointSize(10)
-        self.txtDetails.setFont(font)
-        self.txtDetails.setReadOnly(True)
-        self.txtDetails.setObjectName("txtDetails")
         self.lblStatusLog = QtWidgets.QLabel(self.centralwidget)
         self.lblStatusLog.setGeometry(QtCore.QRect(10, 265, 101, 21))
         font = QtGui.QFont()
@@ -123,9 +105,52 @@ class Ui_frmClient(object):
         self.txtStatusUpdate.setObjectName("txtStatusUpdate")
         self.lstTransferredFiles = QtWidgets.QListWidget(self.centralwidget)
         self.lstTransferredFiles.setGeometry(QtCore.QRect(12, 32, 541, 231))
-        self.lstTransferredFiles.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectRows)
+        self.lstTransferredFiles.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.lstTransferredFiles.setObjectName("lstTransferredFiles")
+        self.btnUnzip = QtWidgets.QPushButton(self.centralwidget)
+        self.btnUnzip.setGeometry(QtCore.QRect(568, 32, 241, 121))
+        font = QtGui.QFont()
+        font.setFamily("Myriad Pro")
+        font.setPointSize(22)
+        self.btnUnzip.setFont(font)
+        self.btnUnzip.setAutoFillBackground(False)
+        self.btnUnzip.setObjectName("btnUnzip")
+        self.linOutput = QtWidgets.QLineEdit(self.centralwidget)
+        self.linOutput.setGeometry(QtCore.QRect(630, 160, 181, 20))
+        self.linOutput.setObjectName("linOutput")
+        self.lblOuput = QtWidgets.QLabel(self.centralwidget)
+        self.lblOuput.setGeometry(QtCore.QRect(570, 160, 51, 16))
+        self.lblOuput.setObjectName("lblOuput")
+        self.layoutWidget1 = QtWidgets.QWidget(self.centralwidget)
+        self.layoutWidget1.setGeometry(QtCore.QRect(570, 180, 121, 91))
+        self.layoutWidget1.setObjectName("layoutWidget1")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget1)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.lblLocation = QtWidgets.QLabel(self.layoutWidget1)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.lblLocation.setFont(font)
+        self.lblLocation.setObjectName("lblLocation")
+        self.horizontalLayout_2.addWidget(self.lblLocation)
+        self.lblLocationResults = QtWidgets.QLabel(self.layoutWidget1)
+        self.lblLocationResults.setObjectName("lblLocationResults")
+        self.horizontalLayout_2.addWidget(self.lblLocationResults)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.lblTime = QtWidgets.QLabel(self.layoutWidget1)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.lblTime.setFont(font)
+        self.lblTime.setObjectName("lblTime")
+        self.horizontalLayout.addWidget(self.lblTime)
+        self.lblTimeResults = QtWidgets.QLabel(self.layoutWidget1)
+        self.lblTimeResults.setObjectName("lblTimeResults")
+        self.horizontalLayout.addWidget(self.lblTimeResults)
+        self.verticalLayout.addLayout(self.horizontalLayout)
         frmClientTerminal.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(frmClientTerminal)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 823, 21))
@@ -154,11 +179,14 @@ class Ui_frmClient(object):
         self.actionSave_Directory.setObjectName("actionSave_Directory")
         self.actionSave_Log = QtWidgets.QAction(frmClientTerminal)
         self.actionSave_Log.setObjectName("actionSave_Log")
+        self.actionAuto_Unzip = QtWidgets.QAction(frmClientTerminal)
+        self.actionAuto_Unzip.setObjectName("actionAuto_Unzip")
         self.menuFile.addAction(self.actionSave_Log)
         self.menuFile.addAction(self.actionClose)
         self.menuFile.addAction(self.actionReset)
         self.menuFile.addAction(self.actionHelp)
         self.menuSettings.addAction(self.actionAuto_Reconnect)
+        self.menuSettings.addAction(self.actionAuto_Unzip)
         self.menuSettings.addAction(self.actionReconnect_Time)
         self.menuSettings.addAction(self.actionTimeout)
         self.menuSettings.addAction(self.actionSave_Directory)
@@ -170,38 +198,37 @@ class Ui_frmClient(object):
 
     def retranslateUi(self, frmClientTerminal):
         _translate = QtCore.QCoreApplication.translate
-        frmClientTerminal.setWindowTitle(_translate(
-            "frmClientTerminal", "Client Terminal"))
-        self.lblListOfConnection.setText(_translate(
-            "frmClientTerminal", "Transferred Files"))
-        self.lblDetails.setText(_translate(
-            "frmClientTerminal", "Item Details"))
+        frmClientTerminal.setWindowTitle(_translate("frmClientTerminal", "Client Terminal"))
+        self.lblListOfConnection.setText(_translate("frmClientTerminal", "Transferred Files"))
         self.btnStartClient.setText(_translate("frmClientTerminal", "START"))
         self.lblInputIP.setText(_translate("frmClientTerminal", "IP Address"))
-        self.linInputIP.setText(_translate(
-            "frmClientTerminal", "192.168.1.118"))
+        self.linInputIP.setText(_translate("frmClientTerminal", "192.168.1.118"))
         self.lblPort.setText(_translate("frmClientTerminal", "Port Number"))
         self.linPort.setText(_translate("frmClientTerminal", "8000"))
-        self.lblStatusLog.setText(_translate(
-            "frmClientTerminal", "Status Log:"))
+        self.lblStatusLog.setText(_translate("frmClientTerminal", "Status Log:"))
+        self.btnUnzip.setText(_translate("frmClientTerminal", "UNPACT"))
+        self.lblOuput.setText(_translate("frmClientTerminal", "Output:"))
+        self.lblLocation.setText(_translate("frmClientTerminal", "Location: "))
+        self.lblLocationResults.setText(_translate("frmClientTerminal", "TextLabel"))
+        self.lblTime.setText(_translate("frmClientTerminal", "Time: "))
+        self.lblTimeResults.setText(_translate("frmClientTerminal", "TextLabel"))
         self.menuFile.setTitle(_translate("frmClientTerminal", "File"))
         self.menuSettings.setTitle(_translate("frmClientTerminal", "Settings"))
-        self.actionAuto_Reconnect.setText(
-            _translate("frmClientTerminal", "Auto Reconnect"))
+        self.actionAuto_Reconnect.setText(_translate("frmClientTerminal", "Auto Reconnect"))
         self.actionTimeout.setText(_translate("frmClientTerminal", "Timeout"))
-        self.actionReconnect_Time.setText(
-            _translate("frmClientTerminal", "Reconnect Time"))
+        self.actionReconnect_Time.setText(_translate("frmClientTerminal", "Reconnect Time"))
         self.actionHelp.setText(_translate("frmClientTerminal", "Help"))
         self.actionClose.setText(_translate("frmClientTerminal", "Close"))
         self.actionReset.setText(_translate("frmClientTerminal", "Reset"))
-        self.actionSave_Directory.setText(
-            _translate("frmClientTerminal", "Save Location"))
-        self.actionSave_Log.setText(
-            _translate("frmClientTerminal", "Save Log"))
+        self.actionSave_Directory.setText(_translate("frmClientTerminal", "Save Location"))
+        self.actionSave_Log.setText(_translate("frmClientTerminal", "Save Log"))
+        self.actionAuto_Unzip.setText(_translate("frmClientTerminal", "Auto Unzip"))
 
-    def button_clicked(self, frmClientTerminal):
+    def clicked_binding(self, frmClientTerminal):
         frmClientTerminal.closeEvent = self.close_gui
+        self.lstTransferredFiles.clicked.connect(self.file_details)
         self.btnStartClient.clicked.connect(self.set_client_for_ui)
+        self.btnUnzip.clicked.connect(self.unpack)
 
     def menu_actions(self):
         self.actionAuto_Reconnect.triggered.connect(self.auto_reconnect)
@@ -221,6 +248,14 @@ class Ui_frmClient(object):
             self.auto_reconn = True
         else:
             self.auto_reconn = False
+
+    def file_details(self):
+        global current_row
+        current_row = self.lstTransferredFiles.currentRow()
+        details = client.get_list_of_file(current_row)
+        self.lblLocationResults.setText(details.get_location())
+        self.lblTimeResults.setText(details.get_time())
+        self.linOutput.setText('C:/Users/user/Desktop/ZYNC/save/temp')
 
     def change_save_location(self):
         dir_name = QtWidgets.QFileDialog.getExistingDirectory(
@@ -253,10 +288,9 @@ class Ui_frmClient(object):
                 self.btnStartClient.setText(splt_message[1])
                 continue
             elif splt_message[0] == 'FILE':
-                # TODO(Jerry): July 22, 2019
-                # Find the right name for splt message
                 row = self.lstTransferredFiles.currentRow()
-                self.lstTransferredFiles.insertItem(row, splt_message[1])
+                self.lstTransferredFiles.addItem(splt_message[1])
+                continue
 
             self.txtStatusUpdate.append(message)
         self.connection.set_messages()
@@ -265,7 +299,7 @@ class Ui_frmClient(object):
         global client
 
         self.txtStatusUpdate.append(sw.time_stamp(
-            dates=False) + 'Initializing client...')
+            dates=False) + 'Initializing client, do not close window...')
         try:
             input_ip = self.linInputIP.text()
             input_port = int(self.linPort.text())
@@ -275,19 +309,23 @@ class Ui_frmClient(object):
                 sw.time_stamp(dates=False) + 'Error: Bad Input')
             return 1
 
-        self.txtStatusUpdate.append(sw.time_stamp(
-            dates=False) + 'Attempting to connect to server')
-        self.txtStatusUpdate.append(sw.time_stamp(
-            dates=False) + 'Do not close window')
-
         self.btnStartClient.setDisabled(True)
-        self.btnStartClient.setText('Connecting')
+        self.btnStartClient.setText('CONNECTING')
         self.linInputIP.setDisabled(True)
         self.linPort.setDisabled(True)
 
         self.connection.start_connection()
         self.connection.resume_connection()
 
+    def unpack(self):
+        if current_row == -1:
+            return 1
+        self.txtStatusUpdate.append(time_stamp(dates=False) +'Unpacking target')
+        output = self.linOutput.text()
+        unzip_folder(self.lblLocationResults.text(), output=output)
+        self.txtStatusUpdate.append(time_stamp(dates=False) +'Target unpacked')
+        return 0
+        
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

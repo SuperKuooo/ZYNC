@@ -3,5 +3,6 @@ from .server import *
 from .observer import *
 from .utils import *
 from .error import *
+from .logger import *
 
-__all__ = ["Client", "Server", "Observer", "utils", "error"]
+__all__ = ["client", "server", "observer", "utils", "error", "logger"]

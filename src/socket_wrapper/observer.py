@@ -14,6 +14,7 @@ from PyQt5 import QtCore
 from .server import Server
 from .utils import zip_folder, print_error, time_stamp
 from .error import Error as er
+from .logger import _ObserverLog
 
 # TODO(Jerry): July 25, 2019
 #  Impletment time changes
@@ -21,8 +22,6 @@ from .error import Error as er
 print_to = None
 
 class Observer(QtCore.QObject):
-    # TODO (Jerry): July 25, 2019
-    # Documentation update for deleting handler
     """ Instance that watches the changes of a directory
 
     Working on two different modes. Timed based or change based.
@@ -30,6 +29,7 @@ class Observer(QtCore.QObject):
     Attributes:
         obs: the watchdog instance. Read watchdog documentation for more info
         server: the server to report the changes to
+        messages: for triggering the QtSignal and print the messages to GUI
         lib_path: default base path
         target_path: rest of the path (from lib_path) to the target directory.
                      For the ease of naming zip file.
@@ -75,7 +75,7 @@ class Observer(QtCore.QObject):
             self.messages.append(time_stamp(dates=False) + 'Target: ' + self.tot_path)
             self.sig.emit()
             
-            if zip_folder(filename, self.tot_path):
+            if zip_folder( self.tot_path, filename):
                 self.messages.append(time_stamp(_type=2, dates=False)
                                       + 'Error: ZIP failed')
                 return er.Other
@@ -90,6 +90,7 @@ class Observer(QtCore.QObject):
             print_error(retval, 'Zip Sent', print_to)
 
             self.messages.append(time_stamp(dates=False) +'File Sent')
+            self.sig.emit()
         else:
             return er.NoSuchOp
         return 0
@@ -178,18 +179,3 @@ class Observer(QtCore.QObject):
         :return: returns all the details in a list
         """
         return self.log.get_latest_log()
-
-
-class _ObserverLog:
-    def __init__(self):
-        self.last_success = None
-        self.last_attempt = None
-        self.total_attempts = None
-        self.save_directory = None
-
-    def get_latest_log(self):
-        """ Get the details of the handler
-
-        :return: returns all the details in a list
-        """
-        return [self.last_success, self.last_attempt, self.total_attempts, self.save_directory]

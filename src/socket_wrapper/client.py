@@ -6,9 +6,10 @@
 # ========================================
 
 import socket
-import time
 import struct
 from .error import Error as er
+from .utils import unzip_folder, time_stamp
+from .logger import TransferredFiles
 
 
 class Client:
@@ -26,6 +27,7 @@ class Client:
 
     def __init__(self, conn: socket.socket = None):
         self.name = socket.gethostname()
+        self.list_of_file = []
         self.s = conn
 
     def set_client_connection(self,
@@ -41,8 +43,6 @@ class Client:
         :return: returns 1 if ran out of tries to reconnect
                  returns 0 if no error
         """
-        # TODO(Jerry): July 22, 2019
-        #  Change where reconnecting statement is printing
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.settimeout(2)
@@ -57,6 +57,11 @@ class Client:
         :return: the name of the client
         """
         return self.name
+
+    def get_list_of_file(self, index = None):
+        if index is not None:
+            return self.list_of_file[index]
+        return self.list_of_file
 
     def confirm_connection(self, message=None):
         """ Sends a message to confirm the connection with the server
@@ -129,10 +134,6 @@ class Client:
         try:
             self.s.send(b)
         except socket.error:
-            # TODO(Jerry): July 22, 2019
-            #  Remove the print statement and double checks
-            #  everywhere else has error statement to catch
-            #  the return value
             return er.FailToSend
         return 0
 
@@ -172,7 +173,7 @@ class Client:
             return er.FailToSend
         return 0
 
-    def save_file(self, buffer_size, file_pointer) -> int:
+    def save_file(self, buffer_size, location) -> int:
         """ saves the receiving data to the specified file pointer
 
         Since .recv() only receives N bytes at a time, so the best
@@ -183,16 +184,27 @@ class Client:
         :param file_pointer: where to save the incoming data
         :return: returns 1
         """
-        data = self.recv()
+        try:
+            file_pointer = open(location, 'xb')
+        except FileExistsError:
+            return er.NoFile
+
         # This is temporary fix. Will come back to this after we have
         # multiple channels
-        if data == b'0':
-            self.save_file(buffer_size, file_pointer)
-        
+        data = self.recv()
+
+        while data == b'0':
+            data = self.recv()
+
         for _ in range(0, len(data)//buffer_size):
             file_pointer.write(data[0:buffer_size])
             data = data[buffer_size:]
         file_pointer.write(data)
+        file_pointer.close()
+        
+        temp = TransferredFiles(location, time_stamp(4, microsecond=False), 'target.zip')
+        self.list_of_file.append(temp)
+    
         return 0
 
     def close(self) -> int:
@@ -202,3 +214,4 @@ class Client:
         """
         self.s.close()
         return 0
+ 

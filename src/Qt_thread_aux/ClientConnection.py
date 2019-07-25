@@ -7,6 +7,11 @@ from socket_wrapper.utils import time_stamp, print_error, FAST_RECEIVE
 from socket_wrapper.error import Error as er
 
 
+# TODO(Jerry): July 25th, 2019
+#   Replace this with generic thread
+#   Much more efficient
+print_to = None
+
 class ClientConnectionThread(QtCore.QObject):
     sig = QtCore.pyqtSignal()
 
@@ -99,30 +104,28 @@ class ClientConnectionThread(QtCore.QObject):
             except AttributeError:
                 return er.CloseSocket
 
-            if op == bytes('0', 'utf-8'):
-                self.client.send_string(op, raw=True)
-            elif op == bytes('zip', 'utf-8'):
-                self.messages.append('FILE: Receiving ZIP')
+            if op == b'zip':
+                self.messages.append(time_stamp(dates=False) + 'Receiving ZIP')
                 self.sig.emit()
 
-                ZIP_NAME = 'target.zip'
-                temp = os.path.join(self.SAVE_LOCATION, ZIP_NAME)
-
-                fp = open(temp, 'wb')
-                retval = self.client.save_file(FAST_RECEIVE, fp)
-                print_error(
-                    retval, 'ClientConnection.communication_loop:: File Saved')
-                fp.close()
-
-                self.messages.append('ZIP Received')
+                i = 0
+                retval = 1
+                while retval != 0:
+                    ZIP_NAME = time_stamp(3) + '-{}.zip'.format(i)
+                    path = os.path.join(self.SAVE_LOCATION, ZIP_NAME)
+                    retval = self.client.save_file(FAST_RECEIVE, path)
+                    if  retval == er.NoFile:
+                        i += 1
+                    
+                self.messages.append(time_stamp(dates=False) + 'ZIP Received')
+                self.messages.append('FILE ' + path)
                 self.sig.emit()
 
             elif op == bytes('image', 'utf-8'):
                 fp = open('../save/shipment.jpg', 'wb')
                 self.client.save_file(self.buffer_size, fp)
 
-            else:
-                print('Connection Lost')
+            elif op != b'0':
                 self.messages.append('Error: Lost connection to server')
                 self.messages.append('RESET')
                 self.sig.emit()
@@ -145,17 +148,11 @@ class ClientConnectionThread(QtCore.QObject):
                     self.sig.emit()
                     time.sleep(reconn_time)
 
-                # if self.client.set_client_connection(self.input_ip, self.input_port) == 1:
-                #     self.messages.append(time_stamp(
-                #         dates=False) + 'Failed to start client')
-                #     self.sig.emit()
-                #     return 1
-
                 self.client.send_string(
                     self.client.get_client_name() + "///is online")
                 self.client.confirm_connection()
 
-                self.messages.append('BUTTON Connected')
+                self.messages.append('BUTTON CONNECTED')
                 self.messages.append(time_stamp(
                     dates=False) + 'Connected to server')
 

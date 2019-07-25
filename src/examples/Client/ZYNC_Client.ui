@@ -37,35 +37,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_9">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Expanding</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>138</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="lblDetails">
-       <property name="font">
-        <font>
-         <family>Myriad Pro</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Item Details</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </widget>
    <widget class="Line" name="line">
@@ -175,25 +146,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QTextEdit" name="txtDetails">
-    <property name="geometry">
-     <rect>
-      <x>570</x>
-      <y>30</y>
-      <width>241</width>
-      <height>231</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Myriad Pro</family>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QLabel" name="lblStatusLog">
     <property name="geometry">
      <rect>
@@ -247,6 +199,109 @@
      <enum>QAbstractItemView::SelectRows</enum>
     </property>
    </widget>
+   <widget class="QPushButton" name="btnUnzip">
+    <property name="geometry">
+     <rect>
+      <x>568</x>
+      <y>32</y>
+      <width>241</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Myriad Pro</family>
+      <pointsize>22</pointsize>
+     </font>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="text">
+     <string>UNPACT</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="linOutput">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>160</y>
+      <width>181</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblOuput">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>160</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Output:</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>180</y>
+      <width>121</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="lblLocation">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Location: </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblLocationResults">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="lblTime">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Time: </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblTimeResults">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -271,6 +326,7 @@
      <string>Settings</string>
     </property>
     <addaction name="actionAuto_Reconnect"/>
+    <addaction name="actionAuto_Unzip"/>
     <addaction name="actionReconnect_Time"/>
     <addaction name="actionTimeout"/>
     <addaction name="actionSave_Directory"/>
@@ -317,6 +373,11 @@
   <action name="actionSave_Log">
    <property name="text">
     <string>Save Log</string>
+   </property>
+  </action>
+  <action name="actionAuto_Unzip">
+   <property name="text">
+    <string>Auto Unzip</string>
    </property>
   </action>
  </widget>

@@ -309,9 +309,9 @@
     <property name="geometry">
      <rect>
       <x>14</x>
-      <y>42</y>
-      <width>166</width>
-      <height>229</height>
+      <y>40</y>
+      <width>161</width>
+      <height>231</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -445,19 +445,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QPushButton" name="btnConfirm">
-    <property name="geometry">
-     <rect>
-      <x>700</x>
-      <y>10</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>CONFIRM</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="mnuBar">
    <property name="geometry">
@@ -465,7 +452,7 @@
      <x>0</x>
      <y>0</y>
      <width>823</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="mnuFile">
