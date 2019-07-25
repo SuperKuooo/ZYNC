@@ -3,6 +3,10 @@ import sys
 import socket_wrapper as sw
 from Qt_thread_aux import ClientConnection as cc
 
+# TODO(Jerry): July 24th, 2019
+#  Standardize all messages. Right now, the titles are all different.
+
+
 client = sw.Client()
 
 class Ui_frmClient(object):

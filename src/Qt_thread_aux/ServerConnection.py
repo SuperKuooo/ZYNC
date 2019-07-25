@@ -10,6 +10,7 @@ import time
 
 from PyQt5 import QtCore
 from socket_wrapper.utils import check_connection
+from socket_wrapper.client import Client
 
 
 class ServerConnectionThread(QtCore.QObject):
@@ -134,7 +135,7 @@ class ServerConnectionThread(QtCore.QObject):
                 conn, addr = self.server.accept()
                 if conn == addr and conn == 1:
                     continue
-                self.server.echo_connection(conn, conn.recv(self.buffer_size))
+                self.server.echo_connection(conn, Client(conn).recv())
                 self.sig.emit()
         return 0
 

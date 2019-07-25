@@ -12,7 +12,7 @@ import os
 from watchdog.observers import Observer as Obs
 from .server import Server
 from .utils import zip_folder, print_error
-from .utils import Error as er
+from .error import Error as er
 
 # TODO(Jerry): July 22, 2019
 #  Re-examine the observer/handler structure
@@ -171,15 +171,10 @@ class Handler:
                 print('zipped')
 
                 retval = self.server.broadcast_string('zip')
-                print_error(retval)
-
-
-                time.sleep(0.75)
-
-                print('sending zip')
+                print_error(retval, 'observer.Hanlder.dispatch:: Sending zip')
                 
                 retval = self.server.broadcast_zip(filename + '.zip')
-                print_error(retval)
+                print_error(retval, 'Zip Sent')
             else:
                 return er.NoSuchOp
         return 0

@@ -3,7 +3,8 @@ import os
 import time
 
 from PyQt5 import QtCore
-from socket_wrapper.utils import time_stamp
+from socket_wrapper.utils import time_stamp, print_error, FAST_RECEIVE
+from socket_wrapper.error import Error as er
 
 
 class ClientConnectionThread(QtCore.QObject):
@@ -94,11 +95,9 @@ class ClientConnectionThread(QtCore.QObject):
             #          receiving zip
 
             try:
-                op = self.client.recv(self.buffer_size)
+                op = self.client.recv()
             except AttributeError:
-                return 1
-
-            print(op)
+                return er.CloseSocket
 
             if op == bytes('0', 'utf-8'):
                 self.client.send_string(op, raw=True)
@@ -107,18 +106,15 @@ class ClientConnectionThread(QtCore.QObject):
                 self.sig.emit()
 
                 ZIP_NAME = 'target.zip'
-
                 temp = os.path.join(self.SAVE_LOCATION, ZIP_NAME)
+
                 fp = open(temp, 'wb')
-                retval = self.client.save_file(self.buffer_size, fp)
-                if retval == 1:
-                    self.messages.append('Error: Failed to open location')
-                elif retval == 2:
-                    self.messages.append('Error: Failed to receive file')
-                else:
-                    self.messages.append('FILE: Finished transfer zip')
-                self.sig.emit()
+                retval = self.client.save_file(FAST_RECEIVE, fp)
+                print_error(retval, 'ClientConnection.communication_loop:: File Saved')
                 fp.close()
+
+                self.messages.append('ZIP Received')
+                self.sig.emit()
 
             elif op == bytes('image', 'utf-8'):
                 fp = open('../save/shipment.jpg', 'wb')

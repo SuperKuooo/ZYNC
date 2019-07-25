@@ -10,12 +10,16 @@ import time
 
 from typing import List, Union, Tuple
 from .client import Client
-from .utils import Error as er
+from .error import Error as er
+from .utils import print_error
 
 # TODO(Jerry): July 23, 2019
 #  add channels to support
 #  RIP. That's a ton of work to do it right.
 #  Look into async and other stuff to make it work.
+
+# TODO(Jerry): July 23, 2019
+#   Change data packing style to packets
 
 
 class Server:
@@ -184,6 +188,7 @@ class Server:
         :return: returns 1 if failed to send message
                  returns 0 if no error
         """
+
         message = message.decode("utf-8")
         try:
             temp = Client(conn)
@@ -231,14 +236,15 @@ class Server:
             target_audience = self.get_list_of_connection()
         else:
             target_audience = self.get_list_of_connection(client_index)
+        
         if not target_audience:
             return er.NoRecvTarget
+        
         for conn in target_audience:
             try:
-                with open(location, 'rb') as fpointer:
-                    conn.sendall(fpointer.read())
-            except FileNotFoundError:
-                return er.NoFile
+                temp = Client(conn)
+                retval = temp.send_zip(location)
+                print_error(retval, 'server.broadcast_zip:: Sent')
             except socket.error:
                 return er.FailToSend
         return 0

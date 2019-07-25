@@ -11,9 +11,13 @@ import socket
 
 from typing import List
 from .client import Client
+from .error import Error
 
 # TODO(Jerry): July 23, 2019
 # Look into problem with relative import and stuff
+
+FAST_RECEIVE = 4194304
+SLOW_RECEIVE = 4096
 
 
 def zip_folder(output: str, target: str) -> int:
@@ -27,7 +31,7 @@ def zip_folder(output: str, target: str) -> int:
     print('target: ', target)
     try:
         print('zipping target')
-        shutil.make_archive(output, "zip", target)
+        # shutil.make_archive(output, "zip", target)
     except shutil.Error:
         print('Error: Zip failed')
         return 1
@@ -43,16 +47,14 @@ def check_connection(list_of_connection: List[socket.socket]) -> List[socket.soc
     # TODO(Jerry): July 23, 2019
     # Think if communication needs to bi-directional
     # There is the multiple computers waiting glitch
-
     _list = []
     i = 0
-
     for _socket in list_of_connection:
         temp = Client(_socket)
         if temp.send_string('0'):
             _list.append(list_of_connection[i])
             list_of_connection.pop(i)
-        elif temp.recv(1) == 1:
+        elif temp.recv() == Error.FailSocketOp:
             _list.append(list_of_connection[i])
             list_of_connection.pop(i)
         i += 1
@@ -126,19 +128,6 @@ class Configuration:
             print(line)
 
         return 0
-
-
-class Error(enumerate):
-    EmptyResult = -1
-    NoFile = 1
-    NoRecvTarget = 2
-    FailToSend = 3
-    FailToInitialize = 4
-    FailSocketOp = 5
-    NoSuchOp = 6
-    CloseSocket = 7
-
-    Other = 99
 
 
 if __name__ == '__main__':

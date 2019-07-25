@@ -7,6 +7,8 @@
 
 import socket
 import time
+import struct
+from .error import Error as er
 
 
 class Client:
@@ -19,7 +21,7 @@ class Client:
     Attributes:
         name: Local client name
         s: low-level socket that is being wrapped by.
-    
+
     """
 
     def __init__(self, conn: socket.socket = None):
@@ -83,28 +85,46 @@ class Client:
             message = self.name + '///is online'
 
         self.s.settimeout(5)
-        data = self.s.recv(4096).decode('utf-8')
+        data = self.recv().decode('utf-8')
 
         if data != message:
             # Compares the outgoing and incoming messages
-            print(message)  # Outgoing
-            print(data)    # Incoming
+            print('Outgoing:', message)  # Outgoing
+            print('Incoming: ', data)    # Incoming
             raise UserWarning('Error: Different echo value')
         return 0
 
-    def recv(self, buffer_size: int, timeout: int = 5):
+    def recv(self, timeout: int = 5):
         """ Receives from the server
+
+        Source:: https://stackoverflow.com/questions/17667903/python-socket-receive-large-amount-of-data
 
         :param buffer_size: the size to receive at once
         :param timeout: timeout time
         :return: returns 1 if socket timed out and doesn't receive anything
                  returns whatever is receive from the socket
         """
+        self.s.settimeout(timeout)
+
         try:
-            self.s.settimeout(timeout)
-            return self.s.recv(buffer_size)
+            raw_msglen = self.s.recv(4)
         except socket.error:
-            return 1
+            return er.FailSocketOp
+        if not raw_msglen:
+            return er.Other
+        msglen = struct.unpack('>I', raw_msglen)[0]
+
+        data = b''
+        while len(data) < msglen:
+            try:
+                packet = self.s.recv(msglen-len(data))
+            except socket.error:
+                return er.FailSocketOp
+            if not packet:
+                print('print bad')
+                return None
+            data += packet
+        return data
 
     def send_string(self, message, raw: bool = False) -> int:
         """ sends a string from client to server
@@ -114,9 +134,13 @@ class Client:
         :return: returns 1 if it fails to send message
                  returns 0 if no error
         """
+        # Encrypt message
         b = message
         if not raw:
-            b = bytes(message, 'utf-8')
+            b = message.encode('utf-8')
+
+        # Pack message with prefix
+        b = struct.pack('>I', len(b)) + b
         try:
             self.s.send(b)
         except socket.error:
@@ -124,8 +148,7 @@ class Client:
             #  Remove the print statement and double checks
             #  everywhere else has error statement to catch
             #  the return value
-            print('Error: Failed to send message')
-            return 1
+            return er.FailToSend
         return 0
 
     def send_image(self, location: str) -> int:
@@ -153,16 +176,18 @@ class Client:
         :return: returns 1 if the zip fails to send
                  returns 0 if no error
         """
+        # >I might not be big enough to handle some of the files
+        # Use Q. Look at struct documentation online
         try:
             with open(location, 'rb') as fp:
-                self.s.sendall(fp.read())
-                print("Sending")
+                stct_file = fp.read()
+                stct_file = struct.pack('>I', len(stct_file)) + stct_file
+                self.s.sendall(stct_file)
         except socket.error:
-            print("Error: Failed to send zip")
-            return 1
+            return er.FailToSend
         return 0
 
-    def save_file(self, buffer, file_pointer) -> int:
+    def save_file(self, buffer_size, file_pointer) -> int:
         """ saves the receiving data to the specified file pointer
 
         Since .recv() only receives N bytes at a time, so the best
@@ -173,25 +198,16 @@ class Client:
         :param file_pointer: where to save the incoming data
         :return: returns 1
         """
-
-        # TODO(Jerry): July 23, 2019
-        #  Better exit statement. Right now it's cathcing with
-        #  blunt force. Not ideal.
-        #  Solution: Might have to add prefix to the messages 
-        #  and read the prefix first.
-        try:
-            i = 0
-            while True:
-                i += 1
-                self.s.settimeout(5)
-                data = self.s.recv(buffer)
-                if not data:
-                    break
-                file_pointer.write(data)
-        except FileNotFoundError:
-            return 1
-        except socket.error:
-            return 0
+        data = self.recv()
+        # This is temporary fix. Will come back to this after we have
+        # multiple channels
+        if data == b'0':
+            self.save_file(buffer_size, file_pointer)
+            
+        for _ in range(0, len(data)//buffer_size):
+            file_pointer.write(data[0:buffer_size])
+            data = data[buffer_size:]
+        file_pointer.write(data)
         return 0
 
     def close(self) -> int:
