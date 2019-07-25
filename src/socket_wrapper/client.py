@@ -31,8 +31,7 @@ class Client:
     def set_client_connection(self,
                               input_ip: str,
                               input_port: int,
-                              time_to_reconnect: int = 0,
-                              num_of_reconnects: int = 0) -> int:
+                            ) -> int:
         """ Connects the client socket to specific address and port
 
         :param input_ip: the target ip
@@ -44,25 +43,12 @@ class Client:
         """
         # TODO(Jerry): July 22, 2019
         #  Change where reconnecting statement is printing
-        restart = num_of_reconnects
-
-        if not num_of_reconnects:
-            # if num_of_reconnects is not specified, it retries indefinitely.
-            restart = float('inf')
-        while restart > 0:
-            restart -= 1
-            try:
-                self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.s.settimeout(2)
-                self.s.connect((input_ip, input_port))
-                break
-            except socket.error:
-                if time_to_reconnect:
-                    print("Reconnecting in " +
-                          str(time_to_reconnect) + " seconds...")
-                    time.sleep(time_to_reconnect)
-                    continue
-                return 1
+        try:
+            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.s.settimeout(2)
+            self.s.connect((input_ip, input_port))
+        except socket.error:
+            return er.FailSocketOp
         return 0
 
     def get_client_name(self) -> str:
@@ -121,7 +107,6 @@ class Client:
             except socket.error:
                 return er.FailSocketOp
             if not packet:
-                print('print bad')
                 return None
             data += packet
         return data
@@ -203,7 +188,7 @@ class Client:
         # multiple channels
         if data == b'0':
             self.save_file(buffer_size, file_pointer)
-            
+        
         for _ in range(0, len(data)//buffer_size):
             file_pointer.write(data[0:buffer_size])
             data = data[buffer_size:]

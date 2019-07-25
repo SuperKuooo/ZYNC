@@ -27,13 +27,10 @@ def zip_folder(output: str, target: str) -> int:
     :param target: The target directory(Directory being zipped)
     :return: Return 1 if zip error. Else return 0
     """
-    print('output: ', output)
-    print('target: ', target)
     try:
-        print('zipping target')
+        pass
         # shutil.make_archive(output, "zip", target)
     except shutil.Error:
-        print('Error: Zip failed')
         return 1
     return 0
 
@@ -61,29 +58,51 @@ def check_connection(list_of_connection: List[socket.socket]) -> List[socket.soc
     return _list
 
 
-def print_error(retval, message = None):
-    if retval == Error.NoFile:
-        print('Error: Failed to open file')
-    elif retval == Error.NoRecvTarget:
-        print('Error: Empty Target')
-    elif retval == Error.FailToSend:
-        print('Error: Failed To send')
-    elif retval == Error.FailToInitialize:
-        print('Error: Failed To Initialize')
-    elif retval == Error.FailSocketOp:
-        print('Error: Socket operation failed')
-    elif retval == Error.NoSuchOp:
-        print('Error: Invalid input operation')
-    elif retval == Error.CloseSocket:
-        print('Error: Closing socket')
-    elif message:
-        print(message)
-
+def print_error(retval, message=None, print_to=None):
+    if not print_to:
+        if retval == Error.NoFile:
+            print('Error: Failed to open file')
+        elif retval == Error.NoRecvTarget:
+            print('Error: Empty Target')
+        elif retval == Error.FailToSend:
+            print('Error: Failed To send')
+        elif retval == Error.FailToInitialize:
+            print('Error: Failed To Initialize')
+        elif retval == Error.FailSocketOp:
+            print('Error: Socket operation failed')
+        elif retval == Error.NoSuchOp:
+            print('Error: Invalid input operation')
+        elif retval == Error.CloseSocket:
+            print('Error: Closing socket')
+        elif message:
+            print(message)
+    else:
+        if retval == Error.NoFile:
+            print_to.append('Error: Failed to open file')
+        elif retval == Error.NoRecvTarget:
+            print_to.append('Error: Empty Target')
+        elif retval == Error.FailToSend:
+            print_to.append('Error: Failed To send')
+        elif retval == Error.FailToInitialize:
+            print_to.append('Error: Failed To Initialize')
+        elif retval == Error.FailSocketOp:
+            print_to.append('Error: Socket operation failed')
+        elif retval == Error.NoSuchOp:
+            print_to.append('Error: Invalid input operation')
+        elif retval == Error.CloseSocket:
+            print_to.append('Error: Closing socket')
+        elif message:
+            print_to.append(message)
 
 def time_stamp(
         _type: int = 0, dates: bool = True, microsecond: bool = True
 ) -> str:
     """ Creates time stamps
+    
+    1: conn
+    2: Error
+    3: project
+    else: Debug
 
     :param _type: specifies the type of time stamp needed
     :param dates: If date is included in time stamp

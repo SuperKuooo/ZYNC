@@ -21,6 +21,8 @@ from .utils import print_error
 # TODO(Jerry): July 23, 2019
 #   Change data packing style to packets
 
+# For debugging
+print_to = None
 
 class Server:
     """ Creates a server wrapper that hosts connection and watches file changes
@@ -244,7 +246,7 @@ class Server:
             try:
                 temp = Client(conn)
                 retval = temp.send_zip(location)
-                print_error(retval, 'server.broadcast_zip:: Sent')
+                print_error(retval, 'server.broadcast_zip:: Sent', print_to)
             except socket.error:
                 return er.FailToSend
         return 0

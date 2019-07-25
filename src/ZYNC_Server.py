@@ -319,6 +319,13 @@ class UiFrmServerTerminal(object):
         # Radio Buttons
         self.rdbChanged.toggled.connect(self.change_detection_method)
 
+    def update_messages(self):
+        observers = server.get_list_of_observer()
+        for observer in observers:
+            for message in observer.get_messages():
+                self.txtStatusUpdate.append(message)
+            observer.set_messages()
+
     def save_log(self):
         # TODO(Jerry): Add feature
         print('Save Log')
@@ -379,7 +386,7 @@ class UiFrmServerTerminal(object):
         self.txtDetails.clear()
         observer = server.get_list_of_observer(current_row)
         mode = observer.get_mode()
-        details = observer.handler.get_details()
+        details = observer.get_details()
         self.gpbOptions.setDisabled(False)
         self.btnConfirm.setDisabled(False)
         if mode == 0:
@@ -421,6 +428,7 @@ class UiFrmServerTerminal(object):
         if dir_name:
             self.txtStatusUpdate.append('Folder selected: ' + dir_name)
             obs = sw.Observer(server, LIB_PATH, dir_name)
+            obs.sig.connect(self.update_messages)
             obs.start_observe()
             self.txtStatusUpdate.append(
                 'Start observing on the directory: ' + dir_name)

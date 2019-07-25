@@ -19,14 +19,14 @@ class ClientConnectionThread(QtCore.QObject):
         self.run = False
         self.com_standby = True
         self.con_standby = True
-        self.buffer_size = 4096
         self.input_ip = input_ip
         self.input_port = input_port
-        self.reconnect_time = 3
 
         # Initializing threads
-        self.communication = threading.Thread(target=self.communication_loop, name='communication_loop')
-        self.connection = threading.Thread(target=self.connection_loop, name='connection_loop')
+        self.communication = threading.Thread(
+            target=self.communication_loop, name='communication_loop')
+        self.connection = threading.Thread(
+            target=self.connection_loop, name='connection_loop')
 
     def start_communication(self):
         self.run = True
@@ -66,7 +66,7 @@ class ClientConnectionThread(QtCore.QObject):
         except RuntimeError:
             return 1
         return 0
-        
+
     def get_messages(self):
         return self.messages
 
@@ -110,7 +110,8 @@ class ClientConnectionThread(QtCore.QObject):
 
                 fp = open(temp, 'wb')
                 retval = self.client.save_file(FAST_RECEIVE, fp)
-                print_error(retval, 'ClientConnection.communication_loop:: File Saved')
+                print_error(
+                    retval, 'ClientConnection.communication_loop:: File Saved')
                 fp.close()
 
                 self.messages.append('ZIP Received')
@@ -120,7 +121,7 @@ class ClientConnectionThread(QtCore.QObject):
                 fp = open('../save/shipment.jpg', 'wb')
                 self.client.save_file(self.buffer_size, fp)
 
-            else :
+            else:
                 print('Connection Lost')
                 self.messages.append('Error: Lost connection to server')
                 self.messages.append('RESET')
@@ -135,11 +136,20 @@ class ClientConnectionThread(QtCore.QObject):
             while self.con_standby:
                 time.sleep(1)
             try:
-                if self.client.set_client_connection(self.input_ip, self.input_port, self.reconnect_time) == 1:
+                reconn_time = 3
+                while self.client.set_client_connection(self.input_ip, self.input_port):
                     self.messages.append(time_stamp(
-                        dates=False) + 'Failed to start client')
+                        1, False) + 'Failed to conned')
+                    self.messages.append(time_stamp(
+                        1, False) + 'Reconnecting in {} seconds'.format(reconn_time))
                     self.sig.emit()
-                    return 1
+                    time.sleep(reconn_time)
+
+                # if self.client.set_client_connection(self.input_ip, self.input_port) == 1:
+                #     self.messages.append(time_stamp(
+                #         dates=False) + 'Failed to start client')
+                #     self.sig.emit()
+                #     return 1
 
                 self.client.send_string(
                     self.client.get_client_name() + "///is online")

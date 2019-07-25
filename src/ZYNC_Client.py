@@ -9,6 +9,7 @@ from Qt_thread_aux import ClientConnection as cc
 
 client = sw.Client()
 
+
 class Ui_frmClient(object):
     def __init__(self, frmClientTerminal):
         self.auto_reconn = True
@@ -243,7 +244,8 @@ class Ui_frmClient(object):
         for message in self.connection.get_messages():
             splt_message = message.split()
             if splt_message[0] == 'RESET':
-                print('Connection Lost')
+                self.txtStatusUpdate.append(time_stamp(
+                    2, dates=False) + 'Connection Lost')
                 self.connection.pause_communication()
                 self.set_client_for_ui()
                 break

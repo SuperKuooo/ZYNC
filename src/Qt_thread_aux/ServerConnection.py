@@ -32,12 +32,15 @@ class ServerConnectionThread(QtCore.QObject):
     sig = QtCore.pyqtSignal()
 
     def __init__(self, server):
-        # Initializing variables
+        # Initialize parent class
         super(ServerConnectionThread, self).__init__()
+        
+        # Initializing variables
+        self.server = server
+        
         self.run = False
         self.alive_standby = True
         self.conn_standby = True
-        self.server = server
         self.refresh_rate = 0.5
         self.sleep = 1
         self.max_connection = 5
@@ -79,7 +82,6 @@ class ServerConnectionThread(QtCore.QObject):
         self.run = True
         self.alive_standby = False
         return 0
-
 
     def pause_conn(self):
         """ Pauses the thread and it on stanby state

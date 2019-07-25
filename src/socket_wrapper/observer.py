@@ -6,18 +6,23 @@
 # ========================================
 
 import datetime
-import time
 import os
 
 from watchdog.observers import Observer as Obs
+from PyQt5 import QtCore
+
 from .server import Server
-from .utils import zip_folder, print_error
+from .utils import zip_folder, print_error, time_stamp
 from .error import Error as er
 
-# TODO(Jerry): July 22, 2019
-#  Re-examine the observer/handler structure
-#  Need it for time changes
-class Observer:
+# TODO(Jerry): July 25, 2019
+#  Impletment time changes
+
+print_to = None
+
+class Observer(QtCore.QObject):
+    # TODO (Jerry): July 25, 2019
+    # Documentation update for deleting handler
     """ Instance that watches the changes of a directory
 
     Working on two different modes. Timed based or change based.
@@ -33,14 +38,61 @@ class Observer:
         mode: 0 for change based mode
               1 for time based mode
     """
+    sig = QtCore.pyqtSignal()
+
     def __init__(self, server: Server, lib_path: str, target_path: str):
+        super(Observer, self).__init__()
+
         self.obs = Obs()
         self.server = server
+        self.messages = []
+        self.log = _ObserverLog()
+
         self.lib_path = lib_path
         self.target_path = target_path
         self.tot_path = os.path.join(lib_path, target_path)
-        self.handler = Handler(server, lib_path, target_path)
         self.mode = 0
+
+    def dispatch(self, event):
+        """ dispatch the calling cases to other methods
+
+        MUST NOT CHANGE METHOD NAME. Else, it will not work.
+
+        :param event: the triggering signals
+        :return: returns 1 if no according changes known
+                 returns 0 if no error
+        """
+        # TODO(Jerry): July 22, 2019
+        #  remove the print statements and somehow append to log box
+        if event.src_path.endswith('.log'):
+            self.messages.append(time_stamp(dates=False) + 'Logfile modified')
+            self.sig.emit()
+
+            filename = os.path.join(
+                '../archive', str(datetime.date.today()))
+
+            self.messages.append(time_stamp(dates=False) + 'Output: ' + filename)
+            self.messages.append(time_stamp(dates=False) + 'Target: ' + self.tot_path)
+            self.sig.emit()
+            
+            if zip_folder(filename, self.tot_path):
+                self.messages.append(time_stamp(_type=2, dates=False)
+                                      + 'Error: ZIP failed')
+                return er.Other
+
+            self.messages.append(time_stamp(dates=False) +'Target Zipped')
+            self.sig.emit()
+
+            retval = self.server.broadcast_string('zip')
+            print_error(retval, 'observer.Hanlder.dispatch:: Sending zip', print_to)
+
+            retval = self.server.broadcast_zip(filename + '.zip')
+            print_error(retval, 'Zip Sent', print_to)
+
+            self.messages.append(time_stamp(dates=False) +'File Sent')
+        else:
+            return er.NoSuchOp
+        return 0
 
     def set_server(self, server: Server) -> int:
         """ Sets the server of the observer
@@ -65,6 +117,12 @@ class Observer:
         """
         return self.mode
 
+    def get_messages(self):
+        return self.messages
+
+    def set_messages(self):
+        return self.messages.clear()
+
     def set_mode(self, mode: int):
         """ Sets the mode of the observer
 
@@ -87,21 +145,13 @@ class Observer:
                  returns 0 if no error
         """
         try:
-            self.obs.schedule(self.handler, self.tot_path, recursive)
+            self.obs.schedule(self, self.tot_path, recursive)
             self.obs.start()
         except RuntimeError:
             return 1
         return 0
 
-    def pause_observe(self):
-        """ Pauses the observing
 
-        :return: returns 0 if no error
-        """
-        self.handler.pause = True
-        return 0
-
-    def resume_observe(self):
         """ Resumes the observer
 
         :return: returns 0 if no error
@@ -122,64 +172,22 @@ class Observer:
             return 1
         return 0
 
+    def get_details(self):
+        """ Get the details of the handler
 
-class Handler:
-    """ Acts accordingly when file changes
+        :return: returns all the details in a list
+        """
+        return self.log.get_latest_log()
 
-    Attributes:
-        server: the server that is distributing the files
-        lib_path: same as observer
-        target_path: same as observer
-        tot_path: same as observer
-        last_success: time of last success send
-        last_attempt: time of last attempt
-        total_attempts: number of total attempts
-        save_directory: the directory files are being saved at
-        pause: if observing should be stopped
-    """
-    def __init__(self, server: Server, lib_path: str, target_path: str):
-        self.server = server
-        self.lib_path = lib_path
-        self.target_path = target_path
-        self.tot_path = os.path.join(lib_path, target_path)
 
+class _ObserverLog:
+    def __init__(self):
         self.last_success = None
         self.last_attempt = None
         self.total_attempts = None
         self.save_directory = None
 
-        self.pause = False
-
-    def dispatch(self, event):
-        """ dispatch the calling cases to other methods
-
-        MUST NOT CHANGE METHOD NAME. Else, it will not work.
-
-        :param event: the triggering signals
-        :return: returns 1 if no according changes known
-                 returns 0 if no error
-        """
-        # TODO(Jerry): July 22, 2019
-        #  remove the print statements and somehow append to log box
-        if not self.pause:
-            if event.src_path.endswith('.log'):
-                print('Logfile Modified')
-                filename = os.path.join('../archive', str(datetime.date.today()))
-
-                if zip_folder(filename, self.tot_path):
-                    print('Error: ZIP failed')
-                print('zipped')
-
-                retval = self.server.broadcast_string('zip')
-                print_error(retval, 'observer.Hanlder.dispatch:: Sending zip')
-                
-                retval = self.server.broadcast_zip(filename + '.zip')
-                print_error(retval, 'Zip Sent')
-            else:
-                return er.NoSuchOp
-        return 0
-
-    def get_details(self):
+    def get_latest_log(self):
         """ Get the details of the handler
 
         :return: returns all the details in a list
