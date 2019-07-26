@@ -1,48 +1,76 @@
 # ZYNC
-A local network syncing software that transfers zipped folders using TCP connections.
+ZYNC is A local network syncing software that zips and transfers folders using TCP connections.
 
-## Introduction to ZYNC
-ZYNC is a file transfer system designed to ease Unity develop cycle. ZYNC Server detects local file changes in the target directories, zips the folder, and transfer to ZYNC clients. 
+ZYNC is a file transfer system designed to ease Unity develop cycle. Waiting for Unity to build could be sometimes grusome. Normally developers would have to wait for Unity to build, distribute it to other computers (if working on multiplayer), then test it. This process could take from 15 - 30 minutes. ZYNC tries to automate that process and let developers spend time on things they actually like.
 
-### Why Was ZYNC Needed
-The studio I interned for, Antiloop, is a virtual reality (VR) experience developing company. While I interned there, I noticed that other developers often wait for 10 - 15 minutes for each Unity build and spend another 10 - 15 minutes to distribute the VR experience to individual computers. I wanted to reduce the time thus improve the studio's efficiency, so I developed that auto-syncs the files between computers.
+Contributions are welcome and I would love to keep updating this software. If you have any suggestions or issues, please let me know.
 
-### Who ZYNC is For
-ZYNC was first made for Unity developer, yet it is suitable for anyone looking for auto  local file syncing solution, then ZYNC is for you. 
+Jerry Kuo: jerrykuo820@gmail.com
 
-## Getting Started
+## Installing ZYNC
 ZYNC is a file transfer/syncing system that uses TCP connections. This section includes knowledge requirements, installation guide, and some basic troubleshooting.
 
 ### What You Need for ZYNC
 ***HARDWARE***
 
-Not a whole lot to be honest. If you want to auto build with Jenkins (More on that one day lol), then you need a dedicated computer for server since you can only open one Unity instance at a time. You could probably use virtual box for such server, but at the studio I interned for, they had extra laptops sitting around so I just used one of them.
+ZYNC doesn't require a whole lot hardware. You will need a dedciated computer to act as server, if you want to auto Unity build with Jenkins (More on that one day lol), then you need a dedicated computer for server since you can only open one Unity instance at a time. 
+
+The server/client connection relies on local network. Both server computer and client computer need to be able to connect to internet.
 
 ***SOFTWARE***
 
-You MUST install Python. ZYNC was developed in Python 3.7 and you can find the link <a href="https://www.python.org/" target="_blank">`here</a>.
+You MUST install Python. ZYNC was developed in Python 3.7 and you can find the link <a href="https://www.python.org/" target="_blank">here</a>.
 
-### Installing ZYNC on Your Computers
-Once Python is installed, you will then need to install some python modules. The procedures are same for all operating systems.
+### Dependencies
+ZYNC depends on the following Python extra libraries:
 
-We need PtQt5 and watchdog modules, so open terminal (command prompt) and type the following commands.
+*   Watchdog
+*   PyQt5
+
+For more advanced library installation guide, visit <a href="https://pythonhosted.org/watchdog/" target="_blank">Watchdog's</a>
+and <a href="https://www.riverbankcomputing.com/static/Docs/PyQt5/" target="_blank">PyQt5's</a> webites
+
+pip install should do the trick for normal users
 ```shell
-pip3 install pyqt5
-pip3 install watchdog
+pip install --user pyqt5
+pip install --user watchdog
 ```
+
 Then you will need to download the source code folder from the release page. You can uncompressed the folder anywhere you like. Do this on both Server and Client computers. Then, open your terminal, change directory to ZYNC/src/
 
 - For Server computer
 ```shell
-cd Server
+# Run server software
 python File\ Transfer\ Server.py
 ```
 - For Client computer
 ```shell
-cd Client
+# Run client software
 python File\ Transfer\ Client.py
 ```
 Then everything should be setup! The GUI should be self explanatory! Let me know if there is any problem! Thanks.
 
+## Special Thanks
+Special shout out to Juan Aller. He was my supervisor for this position. He taught me a lot on software structure, networking, and Unity. One of the chillest guys I have known! Juan is definetely a genious in Unity and game design.
+
+## Release Information
+List of patches and update notes for each release version
+
+### July 26th, 2019
+First formal release, Version 1.0.0.
+* Stablizes connections between servers and clients.
+  * Added size-prefix to each messages send
+  * Zips folders and transfer folders at a faster rate
+  * Change confirm alive messages to single direction
+* New Features
+  * Auto unpacks the zip folder
+* Bug fixes
+* Code optimization
+  * Removed unnecessary classes
+  * Separated classes into modules
+* Documentations
+
+### July 16th, 2019
+Intial release with basic functionality.
 
 
