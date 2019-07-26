@@ -3,7 +3,7 @@ import os
 import time
 
 from PyQt5 import QtCore
-from socket_wrapper.utils import time_stamp, print_error, FAST_RECEIVE
+from socket_wrapper.utils import time_stamp, print_error, FAST_RECEIVE, unzip_folder
 from socket_wrapper.error import Error as er
 
 
@@ -11,6 +11,8 @@ from socket_wrapper.error import Error as er
 #   Replace this with generic thread
 #   Much more efficient
 print_to = None
+save_dir = 'C:/Users/user/Desktop/ZYNC/save/Unpacked/'
+
 
 class ClientConnectionThread(QtCore.QObject):
     sig = QtCore.pyqtSignal()
@@ -20,7 +22,7 @@ class ClientConnectionThread(QtCore.QObject):
         super(ClientConnectionThread, self).__init__()
         self.client = client
         self.messages = []
-        self.SAVE_LOCATION = '..\\save'
+        self.SAVE_LOCATION = '..\save'
         self.run = False
         self.com_standby = True
         self.con_standby = True
@@ -112,6 +114,7 @@ class ClientConnectionThread(QtCore.QObject):
                 retval = 1
                 while retval != 0:
                     ZIP_NAME = time_stamp(3) + '-{}.zip'.format(i)
+                    print(ZIP_NAME)
                     path = os.path.join(self.SAVE_LOCATION, ZIP_NAME)
                     retval = self.client.save_file(FAST_RECEIVE, path)
                     if  retval == er.NoFile:
@@ -120,6 +123,10 @@ class ClientConnectionThread(QtCore.QObject):
                 self.messages.append(time_stamp(dates=False) + 'ZIP Received')
                 self.messages.append('FILE ' + path)
                 self.sig.emit()
+                temp_dir = save_dir + time_stamp(3)+'-{}'.format(i)
+                os.mkdir(temp_dir)
+                unzip_folder(os.path.join(self.SAVE_LOCATION, ZIP_NAME), temp_dir)
+                
 
             elif op == bytes('image', 'utf-8'):
                 fp = open('../save/shipment.jpg', 'wb')

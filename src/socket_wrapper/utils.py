@@ -28,8 +28,7 @@ def zip_folder(target: str, output: str) -> int:
     :return: Return 1 if zip error. Else return 0
     """
     try:
-        pass
-        # shutil.make_archive(output, "zip", target)
+        shutil.make_archive(output, "zip", target)
     except shutil.Error:
         return 1
     return 0

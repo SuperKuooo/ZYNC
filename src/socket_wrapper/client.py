@@ -196,7 +196,8 @@ class Client:
         while data == b'0':
             data = self.recv()
 
-        for _ in range(0, len(data)//buffer_size):
+        length = len(data)
+        for _ in range(0, length//buffer_size):
             file_pointer.write(data[0:buffer_size])
             data = data[buffer_size:]
         file_pointer.write(data)
